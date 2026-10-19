@@ -3,77 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trading Bot Dashboard</title>
+<title>Trading Bot Pro</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-  body{background:#0b0f1a;color:#fff;min-height:100vh;padding-bottom:80px}
-  .header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#121826}
-  .online{color:#00e676;font-size:13px;display:flex;align-items:center;gap:6px}
-  .online::before{content:'';font-size:10px}
-  .balance-card{background:linear-gradient(135deg,#1a73e8,#0d47a1);margin:16px;border-radius:20px;padding:20px;position:relative;overflow:hidden}
-  .balance-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(0,0,0,0.3))}
-  .bal-label{font-size:13px;opacity:0.8}
-  .bal-amount{font-size:42px;font-weight:800;margin:8px 0}
-  .active-badge{position:absolute;top:16px;right:16px;background:rgba(0,230,118,0.2);color:#00e676;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
-  .stats-row{display:flex;justify-content:space-around;margin-top:16px;text-align:center}
-  .stat-item small{display:block;font-size:11px;opacity:0.7}
-  .stat-item b{font-size:16px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px;margin-bottom:20px}
-  .card{background:#151c2c;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px}
-  .card-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
-  .card h4{font-size:13px;opacity:0.7;font-weight:500}
-  .card p{font-size:18px;font-weight:700;margin-top:2px}
-  .section{padding:0 16px;margin-bottom:24px}
-  .section h3{font-size:18px;margin-bottom:12px}
-  .bot-card{background:#151c2c;border-radius:16px;padding:16px;margin-bottom:12px}
-  .bot-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  .price{font-size:20px;font-weight:700}
-  .change{color:#00e676;font-size:14px}
-  .tabs{display:flex;gap:8px;margin-bottom:12px}
-  .tab{padding:6px 14px;border-radius:20px;background:#1e2a3a;font-size:13px;cursor:pointer}
-  .tab.active{background:#1a73e8}
-  .chart-placeholder{height:140px;background:linear-gradient(180deg,#0d1b2a,#151c2c);border-radius:12px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:10px}
-  .bar{width:8px;background:#1a73e8;margin:0 2px;border-radius:4px 4px 0 0}
-  .ops{margin-top:12px}
-  .op{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e2a3a;font-size:14px}
-  .op:last-child{border:none}
-  .profit{color:#00e676}
-  .loss{color:#ff5252}
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#121826;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #1e2a3a;z-index:100}
-  .nav-item{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#8a9ba8;gap:4px;cursor:pointer}
-  .nav-item.active{color:#00e676}
-  .nav-item span{font-size:20px}
-  .btn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:700;font-size:16px;cursor:pointer;margin-top:10px}
-  .btn-primary{background:#1a73e8;color:#fff}
-  .btn-green{background:#00e676;color:#0b0f1a}
-  .btn-outline{background:transparent;border:1px solid #1a73e8;color:#1a73e8}
-  .invite-box{background:linear-gradient(135deg,#1b5e20,#004d40);border-radius:16px;padding:16px;margin:16px}
-  .level-box{background:linear-gradient(135deg,#e65100,#bf360c);border-radius:16px;padding:16px;margin:16px}
-  .levels{display:flex;justify-content:space-between;margin-top:12px}
-  .level{background:rgba(255,255,255,0.15);padding:8px 10px;border-radius:10px;text-align:center;font-size:13px}
-  .hidden{display:none}
-  .admin-panel{background:#1a1a2e;border:1px solid #ff9800;border-radius:16px;padding:16px;margin:16px}
-  .admin-panel h3{color:#ff9800;margin-bottom:12px}
-  input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0b0f1a;color:#fff;margin:6px 0;font-size:15px}
-  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00e676;color:#000;padding:12px 24px;border-radius:30px;font-weight:700;z-index:999;display:none}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#0b0f1a;color:#fff;min-height:100vh;padding-bottom:90px;overflow-x:hidden}
+.header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#121826;position:sticky;top:0;z-index:50}
+.online{color:#00e676;font-size:13px;display:flex;align-items:center;gap:6px}
+.online::before{content:'●';font-size:10px}
+.balance-card{background:linear-gradient(135deg,#1a73e8,#0d47a1);margin:16px;border-radius:22px;padding:22px;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(26,115,232,0.3)}
+.bal-label{font-size:13px;opacity:0.85}
+.bal-amount{font-size:40px;font-weight:800;margin:6px 0 4px}
+.active-badge{position:absolute;top:18px;right:18px;background:rgba(0,230,118,0.25);color:#00e676;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.stats-row{display:flex;justify-content:space-around;margin-top:18px;text-align:center}
+.stat-item small{display:block;font-size:11px;opacity:0.7;margin-bottom:3px}
+.stat-item b{font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 20px}
+.card{background:#151c2c;border-radius:16px;padding:15px;display:flex;align-items:center;gap:12px}
+.card-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:#1e2a3a;flex-shrink:0}
+.card h4{font-size:12px;opacity:0.7;font-weight:500}
+.card p{font-size:17px;font-weight:700;margin-top:2px}
+.section{padding:0 16px 24px}
+.section h3{font-size:18px;margin-bottom:14px}
+.bot-card{background:#151c2c;border-radius:18px;padding:18px}
+.bot-header{margin-bottom:14px}
+.price{font-size:22px;font-weight:800}
+.change{color:#00e676;font-size:14px;margin-left:6px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{padding:7px 16px;border-radius:20px;background:#1e2a3a;font-size:13px;cursor:pointer;transition:0.2s}
+.tab.active{background:#1a73e8}
+.chart-box{height:130px;background:linear-gradient(180deg,#0d1b2a,#151c2c);border-radius:14px;display:flex;align-items:flex-end;padding:12px 8px;gap:3px;overflow:hidden}
+.bar{flex:1;border-radius:4px 4px 0 0;min-width:6px}
+.ops{margin-top:14px}
+.op{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #1e2a3a;font-size:14px}
+.op:last-child{border:none}
+.profit{color:#00e676;font-weight:600}
+.loss{color:#ff5252}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#121826;display:flex;justify-content:space-around;padding:12px 0 18px;border-top:1px solid #1e2a3a;z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#8a9ba8;gap:5px;cursor:pointer;padding:4px 12px;border-radius:12px;transition:0.2s}
+.nav-item.active{color:#00e676;background:rgba(0,230,118,0.1)}
+.nav-item span{font-size:22px}
+.btn{width:100%;padding:15px;border:none;border-radius:14px;font-weight:700;font-size:16px;cursor:pointer;margin-top:10px}
+.btn-primary{background:#1a73e8;color:#fff}
+.btn-green{background:#00e676;color:#0b0f1a}
+.btn-outline{background:transparent;border:1.5px solid #1a73e8;color:#1a73e8}
+.btn-orange{background:#ff9800;color:#000}
+.invite-box{background:linear-gradient(135deg,#1b5e20,#004d40);border-radius:18px;padding:18px;margin:0 16px 16px}
+.level-box{background:linear-gradient(135deg,#e65100,#bf360c);border-radius:18px;padding:18px;margin:0 16px 16px}
+.levels{display:flex;justify-content:space-between;margin-top:14px;gap:6px}
+.level{background:rgba(255,255,255,0.18);padding:10px 6px;border-radius:12px;text-align:center;font-size:13px;flex:1}
+.hidden{display:none !important}
+.admin-panel{background:#1a1a2e;border:2px solid #ff9800;border-radius:18px;padding:20px;margin:16px}
+.admin-panel h3{color:#ff9800;margin-bottom:6px}
+.admin-panel p{font-size:13px;opacity:0.7;margin-bottom:16px}
+label{display:block;font-size:13px;margin:12px 0 4px;opacity:0.8}
+input,select{width:100%;padding:13px;border-radius:12px;border:1px solid #333;background:#0b0f1a;color:#fff;font-size:15px}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#00e676;color:#000;padding:14px 28px;border-radius:30px;font-weight:700;z-index:999;display:none;box-shadow:0 8px 25px rgba(0,230,118,0.4);white-space:nowrap}
+.ref-item{background:#151c2c;border-radius:14px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.ref-item .left{display:flex;align-items:center;gap:12px}
+.ref-avatar{width:42px;height:42px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;font-size:18px}
+.page{animation:fadeIn 0.25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.stat-box{background:#151c2c;border-radius:16px;padding:16px;text-align:center}
+.stat-box h4{font-size:12px;opacity:0.6;margin-bottom:6px}
+.stat-box p{font-size:20px;font-weight:800}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <div class="online" id="onlineCount">32,637 online</div>
-  <div style="display:flex;gap:8px">
-    <span onclick="toggleTheme()" style="cursor:pointer">🌓</span>
-    <span onclick="showAdmin()" style="cursor:pointer">⚙️</span>
+  <div style="display:flex;gap:14px;align-items:center">
+    <span onclick="showPage('admin')" style="font-size:20px;cursor:pointer">⚙️</span>
   </div>
 </div>
 
-<!-- HOME / DASHBOARD -->
-<div id="page-home">
+<!-- ==================== HOME ==================== -->
+<div id="page-home" class="page">
   <div class="balance-card">
     <div class="bal-label">Total balance</div>
-    <div class="bal-amount" id="totalBal">73 <small style="font-size:20px">USDT</small></div>
+    <div class="bal-amount" id="totalBal">73 <small style="font-size:18px">USDT</small></div>
     <div class="active-badge">● ACTIVE</div>
     <div class="stats-row">
       <div class="stat-item"><small>Coins</small><b id="coins">73</b></div>
@@ -84,214 +94,208 @@
 
   <div class="grid">
     <div class="card">
-      <div class="card-icon" style="background:#1a3a5c">🛡️</div>
-      <div><h4>Successful trad...</h4><p id="successRate">82.04%</p></div>
+      <div class="card-icon">🛡️</div>
+      <div><h4>Successful</h4><p id="successRate">82.04%</p></div>
     </div>
     <div class="card">
-      <div class="card-icon" style="background:#1a3a5c">📈</div>
-      <div><h4>Total income</h4><p id="totalIncome">0.00 USDT</p></div>
+      <div class="card-icon">📈</div>
+      <div><h4>Total income</h4><p id="totalIncome">0.00</p></div>
     </div>
     <div class="card">
-      <div class="card-icon" style="background:#1a3a5c">🤖</div>
-      <div><h4>Bots</h4><p>BTC</p></div>
+      <div class="card-icon">🤖</div>
+      <div><h4>Bots</h4><p>BTC Grid</p></div>
     </div>
     <div class="card">
-      <div class="card-icon" style="background:#1a3a5c">🕒</div>
-      <div><h4>Updated</h4><p id="lastUpdate">16:16:08</p></div>
+      <div class="card-icon">🕒</div>
+      <div><h4>Updated</h4><p id="lastUpdate">--:--:--</p></div>
     </div>
-  </div>
-
-  <div class="section">
-    <h3>How to read the chart and reports</h3>
-    <p style="font-size:13px;opacity:0.7;line-height:1.5">Each line on the chart is a limit buy/sell order. “B” is a buy at that point, “S” is a sell. Long and short trades can be open at the same time.</p>
   </div>
 
   <div class="section">
     <div class="bot-card">
       <div class="bot-header">
-        <div>
-          <div style="font-size:13px;opacity:0.7">BTC/USDT · GRID Bot</div>
-          <div class="price">82,692 <span class="change">+0.61%</span></div>
-        </div>
+        <div style="font-size:13px;opacity:0.7">BTC/USDT · GRID Bot</div>
+        <div class="price">82,692 <span class="change">+0.61%</span></div>
       </div>
       <div class="tabs">
-        <div class="tab active">1 day</div>
-        <div class="tab">7 days</div>
-        <div class="tab">30 days</div>
+        <div class="tab active" onclick="switchChartTab(this)">1 day</div>
+        <div class="tab" onclick="switchChartTab(this)">7 days</div>
+        <div class="tab" onclick="switchChartTab(this)">30 days</div>
       </div>
-      <div class="chart-placeholder" id="chart">
-        <!-- simple bars -->
-      </div>
+      <div class="chart-box" id="chart"></div>
       <div class="ops" id="opsList">
-        <div class="op"><span>19/10/2026 · 10:45</span><span class="profit">+0.48%</span></div>
-        <div class="op"><span>19/10/2026 · 08:45</span><span class="profit">+0.32%</span></div>
-        <div class="op"><span>19/10/2026 · 08:00</span><span class="profit">+0.40%</span></div>
-        <div class="op"><span>19/10/2026 · 05:30</span><span class="profit">+0.32%</span></div>
-        <div class="op"><span>19/10/2026 · 04:45</span><span class="profit">+1.25%</span></div>
+        <div class="op"><span>19/10 · 10:45</span><span class="profit">+0.48%</span></div>
+        <div class="op"><span>19/10 · 08:45</span><span class="profit">+0.32%</span></div>
+        <div class="op"><span>19/10 · 08:00</span><span class="profit">+0.40%</span></div>
+        <div class="op"><span>19/10 · 05:30</span><span class="profit">+0.32%</span></div>
+        <div class="op"><span>19/10 · 04:45</span><span class="profit">+1.25%</span></div>
+        <div class="op"><span>19/10 · 00:45</span><span class="profit">+0.14%</span></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FRIENDS / REFERRAL -->
-<div id="page-friends" class="hidden">
+<!-- ==================== FRIENDS ==================== -->
+<div id="page-friends" class="page hidden">
   <div class="section" style="padding-top:16px">
-    <h3>Invite friends and raise your hourly income</h3>
+    <h3>Invite friends & raise income</h3>
     <div style="display:flex;gap:10px;margin:16px 0">
-      <button class="btn btn-outline" style="flex:1" onclick="copyLink()">📋 Copy</button>
-      <button class="btn btn-primary" style="flex:1" onclick="invite()">✈️ Invite</button>
+      <button class="btn btn-outline" style="flex:1;margin:0" onclick="copyRefLink()">📋 Copy Link</button>
+      <button class="btn btn-primary" style="flex:1;margin:0" onclick="shareInvite()">✈️ Invite</button>
     </div>
   </div>
 
   <div class="invite-box">
-    <h4 style="margin-bottom:12px">Reward for each friend</h4>
-    <div style="font-size:14px;line-height:1.8">
-      +50 coins and 10% USDT · First invite<br>
-      +30 coins and 10% USDT · Second invite<br>
-      +20 coins and 10% USDT · Third invite<br>
-      +10 coins and 10% USDT · Fourth invite<br>
-      +10 coins and 10% USDT · Further invites
+    <h4 style="margin-bottom:12px;font-size:16px">🎁 Reward for each friend</h4>
+    <div style="font-size:14px;line-height:1.9">
+      <div>🥇 First invite → <b>+50 coins + 10% USDT</b></div>
+      <div>🥈 Second invite → <b>+30 coins + 10% USDT</b></div>
+      <div>🥉 Third invite → <b>+20 coins + 10% USDT</b></div>
+      <div>4️⃣ Fourth invite → <b>+10 coins + 10% USDT</b></div>
+      <div>♾️ Further → <b>+10 coins + 10% USDT</b></div>
     </div>
   </div>
 
   <div class="level-box">
-    <h4>Five-level program</h4>
-    <p style="font-size:13px;opacity:0.9;margin:8px 0">From every USDT top-up</p>
+    <h4 style="font-size:16px">🔥 Five-level program</h4>
+    <p style="font-size:13px;opacity:0.9;margin:8px 0">Every USDT top-up থেকে কমিশন</p>
     <div class="levels">
-      <div class="level">10%</div>
-      <div class="level">3%</div>
-      <div class="level">2%</div>
-      <div class="level">1%</div>
-      <div class="level">1%</div>
+      <div class="level"><b>L1</b><br>10%</div>
+      <div class="level"><b>L2</b><br>3%</div>
+      <div class="level"><b>L3</b><br>2%</div>
+      <div class="level"><b>L4</b><br>1%</div>
+      <div class="level"><b>L5</b><br>1%</div>
     </div>
   </div>
 
   <div class="section">
-    <h3>Your referrals</h3>
-    <p style="opacity:0.6;text-align:center;padding:30px 0">No referrals yet</p>
+    <h3>Your Referrals <span id="refCount" style="font-size:14px;opacity:0.6">(0)</span></h3>
+    <div id="refList">
+      <p style="text-align:center;opacity:0.5;padding:40px 0">এখনো কোনো রেফারেল নেই</p>
+    </div>
   </div>
 </div>
 
-<!-- FARM / WALLET -->
-<div id="page-farm" class="hidden">
+<!-- ==================== FARM ==================== -->
+<div id="page-farm" class="page hidden">
   <div class="section" style="padding-top:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
       <div>
-        <div style="font-size:13px;opacity:0.7">Income</div>
-        <div style="font-size:28px;font-weight:800" id="hourlyIncome">$0.0006 /hr</div>
-        <div style="font-size:12px;opacity:0.6">$0.01 day · $0.44 month</div>
+        <div style="font-size:13px;opacity:0.7">Hourly Income</div>
+        <div style="font-size:26px;font-weight:800" id="hourlyIncome">$0.0006</div>
+        <div style="font-size:12px;opacity:0.55" id="dailyMonth">$0.01 /day · $0.44 /month</div>
       </div>
-      <button class="btn btn-green" style="width:auto;padding:10px 20px" onclick="claimProfit()">Claim profit</button>
+      <button class="btn btn-green" style="width:auto;padding:12px 20px;margin:0" onclick="claimProfit()">💰 Claim</button>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <div>
-          <h4>Coins</h4>
-          <p id="farmCoins">73 ≈ $73.00</p>
-          <small style="opacity:0.6">0.02% Per day</small>
-        </div>
+    <div class="grid" style="padding:0;margin-bottom:16px">
+      <div class="stat-box">
+        <h4>Coins</h4>
+        <p id="farmCoins">73</p>
+        <small style="opacity:0.5">0.02% /day</small>
       </div>
-      <div class="card">
-        <div>
-          <h4>USDT balance</h4>
-          <p id="farmUsdt">$0.2463</p>
-          <small style="opacity:0.6">0% Per day</small>
-        </div>
+      <div class="stat-box">
+        <h4>USDT</h4>
+        <p id="farmUsdt">$0.2463</p>
+        <small style="opacity:0.5">0% /day</small>
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="topUp()">↑ Top up</button>
+    <button class="btn btn-primary" onclick="topUp()">↑ Top up USDT</button>
     <button class="btn btn-green" onclick="withdraw()">↓ Withdraw</button>
 
-    <div style="background:#151c2c;border-radius:16px;padding:16px;margin-top:16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div style="font-size:24px">🟢</div>
+    <div style="background:#151c2c;border-radius:18px;padding:18px;margin-top:18px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:28px">⚡</div>
         <div>
-          <b>+30% to your USDT balance in one tap</b>
-          <p style="font-size:13px;opacity:0.7;margin-top:4px">Free bots are available. Top up for instant income of +30% of the deposit amount.</p>
+          <b style="font-size:15px">+30% Bonus in one tap</b>
+          <p style="font-size:13px;opacity:0.7;margin-top:6px;line-height:1.4">Top up করলে তোমার ডিপোজিটের +30% সাথে সাথে পাবে + Free bots আনলক হবে।</p>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="topUp()">Top up USDT balance</button>
-      <p style="font-size:12px;opacity:0.5;margin-top:8px;text-align:center">10 065 of 15 000 slots left, bonuses are limited!</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="topUp()">Top up now</button>
+      <p style="font-size:12px;opacity:0.45;margin-top:10px;text-align:center">10,065 of 15,000 slots left</p>
     </div>
   </div>
 </div>
 
-<!-- ACCOUNT -->
-<div id="page-account" class="hidden">
-  <div style="padding:16px;text-align:center">
-    <div style="width:80px;height:80px;border-radius:50%;background:#1a73e8;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px">👤</div>
-    <h2 id="userName">Hamja Bunny</h2>
-    <div style="display:inline-block;background:#00e676;color:#000;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700;margin:8px 0">★ Level 1</div>
-    <div style="font-size:22px;font-weight:800;margin:8px 0" id="accBal">73 USDT Total balance</div>
+<!-- ==================== ACCOUNT ==================== -->
+<div id="page-account" class="page hidden">
+  <div style="padding:20px 16px;text-align:center">
+    <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#1a73e8,#00e676);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 25px rgba(26,115,232,0.4)">👤</div>
+    <h2 id="userName" style="font-size:22px">User</h2>
+    <div style="display:inline-block;background:#00e676;color:#000;padding:5px 16px;border-radius:20px;font-size:13px;font-weight:800;margin:10px 0">★ Level 1</div>
+    <div style="font-size:24px;font-weight:800;margin-top:6px" id="accBal">73 USDT</div>
   </div>
 
-  <div class="grid" style="padding:0 16px">
-    <div class="card"><div><h4>Invited by</h4><p style="font-size:13px">ID 5811464208</p></div></div>
+  <div class="grid">
+    <div class="card"><div><h4>Invited by</h4><p style="font-size:13px" id="invitedBy">ID —</p></div></div>
     <div class="card"><div><h4>Coin balance</h4><p id="accCoins">73</p></div></div>
-    <div class="card"><div><h4>USDT balance</h4><p id="accUsdt">0.246 USDT</p></div></div>
-    <div class="card"><div><h4>Referral income</h4><p>0.00 USDT</p></div></div>
-    <div class="card"><div><h4>Referral coins</h4><p>0 coins</p></div></div>
-    <div class="card"><div><h4>USDT withdrawn</h4><p>0.00 USDT</p></div></div>
+    <div class="card"><div><h4>USDT balance</h4><p id="accUsdt">0.246</p></div></div>
+    <div class="card"><div><h4>Referral income</h4><p id="refIncome">0.00</p></div></div>
+    <div class="card"><div><h4>Referral coins</h4><p id="refCoins">0</p></div></div>
+    <div class="card"><div><h4>Withdrawn</h4><p id="withdrawn">0.00</p></div></div>
   </div>
 
   <div class="section">
-    <div class="card" style="justify-content:space-between">
+    <div class="card" style="justify-content:space-between;cursor:pointer" onclick="showToast('Language: English')">
       <div><h4>Language</h4><p>🇬🇧 English</p></div>
-      <span>›</span>
+      <span style="opacity:0.5">›</span>
     </div>
     <div class="card" style="justify-content:space-between;margin-top:10px">
-      <div><h4>Theme</h4><p>Dark</p></div>
-      <label style="display:flex;align-items:center"><input type="checkbox" checked onchange="toggleTheme()"></label>
+      <div><h4>Theme</h4><p>Dark Mode</p></div>
+      <span style="color:#00e676">●</span>
     </div>
   </div>
 </div>
 
-<!-- ADMIN PANEL (শুধু তুমি দেখতে পারবে) -->
-<div id="page-admin" class="hidden">
+<!-- ==================== ADMIN ==================== -->
+<div id="page-admin" class="page hidden">
   <div class="admin-panel">
-    <h3>🔧 Admin Panel (শুধু তোমার জন্য)</h3>
-    <p style="font-size:13px;opacity:0.7;margin-bottom:12px">এখান থেকে সবকিছু কন্ট্রোল করতে পারবে</p>
+    <h3>🔧 Admin Control Panel</h3>
+    <p>শুধু তুমি এখানে সবকিছু পরিবর্তন করতে পারবে</p>
 
-    <label>Total Coins</label>
+    <label>💰 Total Coins</label>
     <input type="number" id="adminCoins" value="73">
 
-    <label>USDT Balance</label>
+    <label>💵 USDT Balance</label>
     <input type="number" id="adminUsdt" value="0.2463" step="0.0001">
 
-    <label>Success Rate %</label>
+    <label>📊 Success Rate (%)</label>
     <input type="number" id="adminSuccess" value="82.04" step="0.01">
 
-    <label>Active Bots</label>
+    <label>🤖 Active Bots</label>
     <input type="number" id="adminBots" value="1">
 
-    <label>Hourly Income ($)</label>
+    <label>⏱️ Hourly Income ($)</label>
     <input type="number" id="adminHourly" value="0.0006" step="0.0001">
 
-    <label>Tap Ability (প্রতি ট্যাপে কত পাবে)</label>
+    <label>👆 Tap Power (প্রতি ট্যাপে কত)</label>
     <input type="number" id="adminTapPower" value="10">
 
-    <label>Online Count</label>
+    <label>👥 Online Count</label>
     <input type="number" id="adminOnline" value="32637">
 
-    <button class="btn btn-green" onclick="saveAdmin()">💾 Save & Apply</button>
-    <button class="btn btn-outline" style="margin-top:8px" onclick="resetAdmin()">🔄 Reset to Default</button>
+    <label>🎁 Referral Bonus Coins</label>
+    <input type="number" id="adminRefBonus" value="50">
+
+    <button class="btn btn-green" onclick="saveAdmin()">💾 Save & Apply Now</button>
+    <button class="btn btn-outline" style="margin-top:10px" onclick="resetAdmin()">🔄 Reset Default</button>
+    <button class="btn btn-orange" style="margin-top:10px" onclick="addFakeRef()">➕ Add Demo Referral</button>
   </div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <div class="nav-item active" onclick="showPage('home')">
+  <div class="nav-item active" data-page="home" onclick="showPage('home')">
     <span>🔄</span>Trade
   </div>
-  <div class="nav-item" onclick="showPage('friends')">
+  <div class="nav-item" data-page="friends" onclick="showPage('friends')">
     <span>👥</span>Friends
   </div>
-  <div class="nav-item" onclick="showPage('farm')">
+  <div class="nav-item" data-page="farm" onclick="showPage('farm')">
     <span>💰</span>Farm
   </div>
-  <div class="nav-item" onclick="showPage('account')">
+  <div class="nav-item" data-page="account" onclick="showPage('account')">
     <span>👤</span>Account
   </div>
 </div>
@@ -299,181 +303,129 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ========== Telegram WebApp ==========
-  const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp;
+if(tg){
   tg.ready();
   tg.expand();
   tg.setHeaderColor('#0b0f1a');
   tg.setBackgroundColor('#0b0f1a');
+}
 
-  // User info
-  const user = tg.initDataUnsafe?.user;
-  if(user){
-    document.getElementById('userName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-  }
+const user = tg?.initDataUnsafe?.user;
+if(user){
+  document.getElementById('userName').textContent = (user.first_name || '') + (user.last_name ? ' ' + user.last_name : '');
+}
 
-  // ========== State ==========
-  let state = {
-    coins: 73,
-    usdt: 0.2463,
-    success: 82.04,
-    bots: 1,
-    hourly: 0.0006,
-    tapPower: 10,
-    online: 32637,
-    totalIncome: 0
-  };
+// ========== STATE ==========
+let state = {
+  coins: 73,
+  usdt: 0.2463,
+  success: 82.04,
+  bots: 1,
+  hourly: 0.0006,
+  tapPower: 10,
+  online: 32637,
+  totalIncome: 0,
+  refIncome: 0,
+  refCoins: 0,
+  withdrawn: 0,
+  refBonus: 50,
+  referrals: []
+};
 
-  // localStorage থেকে লোড
-  const saved = localStorage.getItem('botState');
-  if(saved) state = JSON.parse(saved);
+const saved = localStorage.getItem('tradingBotPro');
+if(saved){
+  try{ state = {...state, ...JSON.parse(saved)}; }catch(e){}
+}
 
-  function save(){
-    localStorage.setItem('botState', JSON.stringify(state));
-    updateUI();
-  }
-
-  function updateUI(){
-    document.getElementById('totalBal').innerHTML = state.coins + ' <small style="font-size:20px">USDT</small>';
-    document.getElementById('coins').textContent = state.coins;
-    document.getElementById('usdtBal').textContent = '$' + state.usdt.toFixed(4);
-    document.getElementById('successRate').textContent = state.success.toFixed(2) + '%';
-    document.getElementById('activeBots').textContent = state.bots + ' bots';
-    document.getElementById('totalIncome').textContent = state.totalIncome.toFixed(2) + ' USDT';
-    document.getElementById('farmCoins').textContent = state.coins + ' ≈ $' + state.coins.toFixed(2);
-    document.getElementById('farmUsdt').textContent = '$' + state.usdt.toFixed(4);
-    document.getElementById('accBal').textContent = state.coins + ' USDT Total balance';
-    document.getElementById('accCoins').textContent = state.coins;
-    document.getElementById('accUsdt').textContent = state.usdt.toFixed(3) + ' USDT';
-    document.getElementById('hourlyIncome').textContent = '$' + state.hourly.toFixed(4) + ' /hr';
-    document.getElementById('onlineCount').textContent = state.online.toLocaleString() + ' online';
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }
-
-  // ========== Navigation ==========
-  function showPage(page){
-    ['home','friends','farm','account','admin'].forEach(p=>{
-      document.getElementById('page-'+p).classList.add('hidden');
-    });
-    document.getElementById('page-'+page).classList.remove('hidden');
-
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    if(page!=='admin'){
-      const map = {home:0,friends:1,farm:2,account:3};
-      document.querySelectorAll('.nav-item')[map[page]].classList.add('active');
-    }
-  }
-
-  function showAdmin(){
-    // শুধু admin দেখতে পাবে (তুমি চাইলে user id চেক করতে পারো)
-    document.getElementById('adminCoins').value = state.coins;
-    document.getElementById('adminUsdt').value = state.usdt;
-    document.getElementById('adminSuccess').value = state.success;
-    document.getElementById('adminBots').value = state.bots;
-    document.getElementById('adminHourly').value = state.hourly;
-    document.getElementById('adminTapPower').value = state.tapPower;
-    document.getElementById('adminOnline').value = state.online;
-    showPage('admin');
-  }
-
-  function saveAdmin(){
-    state.coins = parseFloat(document.getElementById('adminCoins').value) || 0;
-    state.usdt = parseFloat(document.getElementById('adminUsdt').value) || 0;
-    state.success = parseFloat(document.getElementById('adminSuccess').value) || 0;
-    state.bots = parseInt(document.getElementById('adminBots').value) || 1;
-    state.hourly = parseFloat(document.getElementById('adminHourly').value) || 0;
-    state.tapPower = parseInt(document.getElementById('adminTapPower').value) || 10;
-    state.online = parseInt(document.getElementById('adminOnline').value) || 1000;
-    save();
-    showToast('✅ Admin settings saved!');
-    showPage('home');
-  }
-
-  function resetAdmin(){
-    state = {coins:73,usdt:0.2463,success:82.04,bots:1,hourly:0.0006,tapPower:10,online:32637,totalIncome:0};
-    save();
-    showToast('🔄 Reset done');
-    showPage('home');
-  }
-
-  // ========== Actions ==========
-  function claimProfit(){
-    const profit = state.hourly * 24;
-    state.usdt += profit;
-    state.totalIncome += profit;
-    save();
-    showToast('💰 Claimed $' + profit.toFixed(4));
-  }
-
-  function topUp(){
-    tg.showPopup({
-      title: 'Top up USDT',
-      message: 'কমপক্ষে 10 USDT টপআপ করলে extra bots আনলক হবে এবং +30% বোনাস পাবে।',
-      buttons: [{type:'ok'},{type:'cancel'}]
-    }, (btn)=>{
-      if(btn==='ok'){
-        state.usdt += 10;
-        state.coins += 30;
-        save();
-        showToast('+10 USDT + 30 Coins added (demo)');
-      }
-    });
-  }
-
-  function withdraw(){
-    if(state.usdt < 1){
-      showToast('❌ Minimum 1 USDT needed');
-      return;
-    }
-    tg.showPopup({
-      title: 'Withdraw',
-      message: 'Withdraw ' + state.usdt.toFixed(4) + ' USDT?',
-      buttons: [{type:'ok'},{type:'cancel'}]
-    }, (btn)=>{
-      if(btn==='ok'){
-        showToast('✅ Withdraw request sent (demo)');
-        state.usdt = 0;
-        save();
-      }
-    });
-  }
-
-  function copyLink(){
-    const link = 'https://t.me/your_bot?start=' + (user?.id || 'ref');
-    navigator.clipboard.writeText(link);
-    showToast('📋 Link copied!');
-  }
-
-  function invite(){
-    tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent('https://t.me/your_bot?start=ref') + '&text=' + encodeURIComponent('Join my trading bot!'));
-  }
-
-  function toggleTheme(){
-    document.body.style.background = document.body.style.background === 'rgb(255, 255, 255)' ? '#0b0f1a' : '#fff';
-  }
-
-  function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    setTimeout(()=>t.style.display='none',2500);
-  }
-
-  // Chart bars
-  function makeChart(){
-    const c = document.getElementById('chart');
-    c.innerHTML = '';
-    for(let i=0;i<40;i++){
-      const h = 20 + Math.random()*100;
-      const bar = document.createElement('div');
-      bar.className = 'bar';
-      bar.style.height = h + 'px';
-      bar.style.background = Math.random()>0.6 ? '#00e676' : '#1a73e8';
-      c.appendChild(bar);
-    }
-  }
-
-  // Init
+function save(){
+  localStorage.setItem('tradingBotPro', JSON.stringify(state));
   updateUI();
+}
+
+function updateUI(){
+  document.getElementById('totalBal').innerHTML = state.coins + ' <small style="font-size:18px">USDT</small>';
+  document.getElementById('coins').textContent = state.coins;
+  document.getElementById('usdtBal').textContent = '$' + state.usdt.toFixed(4);
+  document.getElementById('successRate').textContent = state.success.toFixed(2) + '%';
+  document.getElementById('activeBots').textContent = state.bots + ' bots';
+  document.getElementById('totalIncome').textContent = state.totalIncome.toFixed(2);
+  document.getElementById('farmCoins').textContent = state.coins;
+  document.getElementById('farmUsdt').textContent = '$' + state.usdt.toFixed(4);
+  document.getElementById('accBal').textContent = state.coins + ' USDT';
+  document.getElementById('accCoins').textContent = state.coins;
+  document.getElementById('accUsdt').textContent = state.usdt.toFixed(3);
+  document.getElementById('refIncome').textContent = state.refIncome.toFixed(2);
+  document.getElementById('refCoins').textContent = state.refCoins;
+  document.getElementById('withdrawn').textContent = state.withdrawn.toFixed(2);
+  document.getElementById('hourlyIncome').textContent = '$' + state.hourly.toFixed(4);
+  document.getElementById('dailyMonth').textContent = '$' + (state.hourly*24).toFixed(2) + ' /day · $' + (state.hourly*24*30).toFixed(2) + ' /month';
+  document.getElementById('onlineCount').textContent = state.online.toLocaleString() + ' online';
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('refCount').textContent = '(' + state.referrals.length + ')';
+
+  // Referral list
+  const list = document.getElementById('refList');
+  if(state.referrals.length === 0){
+    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:40px 0">এখনো কোনো রেফারেল নেই</p>';
+  } else {
+    list.innerHTML = state.referrals.map((r,i)=>`
+      <div class="ref-item">
+        <div class="left">
+          <div class="ref-avatar">${r.name[0]}</div>
+          <div>
+            <div style="font-weight:600">${r.name}</div>
+            <div style="font-size:12px;opacity:0.6">${r.date}</div>
+          </div>
+        </div>
+        <div style="color:#00e676;font-weight:700">+${r.bonus}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ========== NAVIGATION (Fixed) ==========
+function showPage(page){
+  ['home','friends','farm','account','admin'].forEach(p=>{
+    const el = document.getElementById('page-'+p);
+    if(el) el.classList.add('hidden');
+  });
+  const target = document.getElementById('page-'+page);
+  if(target) target.classList.remove('hidden');
+
+  // Bottom nav active
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.remove('active');
+    if(n.dataset.page === page) n.classList.add('active');
+  });
+}
+
+// ========== CHART TABS ==========
+function switchChartTab(el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
   makeChart();
-  setIn
+}
+
+// ========== ADMIN ==========
+function showAdminPanel(){
+  document.getElementById('adminCoins').value = state.coins;
+  document.getElementById('adminUsdt').value = state.usdt;
+  document.getElementById('adminSuccess').value = state.success;
+  document.getElementById('adminBots').value = state.bots;
+  document.getElementById('adminHourly').value = state.hourly;
+  document.getElementById('adminTapPower').value = state.tapPower;
+  document.getElementById('adminOnline').value = state.online;
+  document.getElementById('adminRefBonus').value = state.refBonus;
+  showPage('admin');
+}
+
+// ⚙️ বাটনে ক্লিক করলে
+document.querySelector('.header span').onclick = showAdminPanel;
+
+function saveAdmin(){
+  state.coins = parseFloat(document.getElementById('adminCoins').value) || 0;
+  state.usdt = parseFloat(document.getElementById('adminUsdt').value) || 0;
+  state.success = parseFloat(document.getElementById('adminSuccess').value) || 0;
+  state.bots = parseInt(document.getElementById('adminBots').value) || 1;
+  state.hourly = parseFloat(document.getElementById('adminHourly').va
