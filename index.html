@@ -1,93 +1,209 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"> 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
-body{background:#080a0e;color:#fff;min-height:100vh;padding-bottom:85px}
-.top{position:sticky;top:0;z-index:10;background:#0f1419;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e2a3a}
-.top b{color:#00e676}
-.lang{font-size:11px;background:#151a21;border:1px solid #1e2a3a;padding:4px 8px;border-radius:8px;color:#8a9ba8;cursor:pointer}
-.tabs{position:sticky;top:49px;z-index:9;background:#0f1419;display:flex;gap:6px;padding:10px;overflow-x:auto;border-bottom:1px solid #1e2a3a}
-.tab{padding:10px 14px;border-radius:10px;background:#151a21;border:1px solid #1e2a3a;color:#8a9ba8;font-weight:700;white-space:nowrap;cursor:pointer}
-.tab.active{background:#00e676;color:#0b0e11}
-.page{display:none;max-width:420px;margin:0 auto;padding:16px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system}
+body{background:#070b12;color:#fff;min-height:100vh;padding-bottom:78px}
+.top{position:sticky;top:0;z-index:20;background:#0a0f1c;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #162233}
+.logo{font-weight:900;font-size:18px} .logo span{color:#ffc107}
+.chip{font-size:11px;background:#162033;border:1px solid #22344d;padding:5px 8px;border-radius:20px;color:#8aa0bd}
+.tabs-top{display:flex;gap:8px;padding:10px;background:#0a0f1c;overflow-x:auto;position:sticky;top:48px;z-index:19;border-bottom:1px solid #162233}
+.tab{padding:8px 14px;border-radius:20px;background:#162033;border:1px solid #22344d;color:#8aa0bd;font-weight:700;font-size:12px;white-space:nowrap;cursor:pointer}
+.tab.active{background:#00d084;color:#04120a;border-color:#00d084}
+.page{display:none;max-width:440px;margin:0 auto;padding:14px}
 .page.active{display:block}
-.card{background:#151a21;border:1px solid #1e2a3a;border-radius:16px;padding:16px;margin-bottom:12px}
-.coin{width:130px;height:130px;background:linear-gradient(135deg,#00e676,#00b248);border-radius:50%;margin:16px auto;display:flex;align-items:center;justify-content:center;font-size:56px;box-shadow:0 12px 32px #00e67655;cursor:pointer}
-.coin:active{transform:scale(0.9)}
-.btn{width:100%;padding:14px;background:#00e676;color:#0b0e11;border:none;border-radius:12px;font-weight:800;cursor:pointer;margin-top:10px}
-.btn2{background:#1e2a24;color:#00e676;border:1px solid #00e676}
-.phone{display:flex;gap:12px;align-items:center;padding:12px;background:#0f1419;border-radius:12px;margin-top:10px;border:1px solid #1e2a3a;cursor:pointer}
-.phone.active{border-color:#00e676;background:#0f1e15}
-.sub{color:#8a9ba8;font-size:12px}
-.gems{font-size:28px;font-weight:900;color:#00e676;text-align:center}
+.card{background:#131b2e;border:1px solid #1e2e4a;border-radius:16px;padding:14px;margin-bottom:12px}
+.card-blue{background:linear-gradient(135deg,#2a62ff 0%,#3b82f6 55%,#60a5fa 100%)}
+.balance{font-size:28px;font-weight:900}
+.sub{color:#8aa0bd;font-size:12px}
+.row{display:flex;gap:10px;margin-top:10px}
+.pill{flex:1;background:#0f1a2e;border:1px solid #1e2e4a;border-radius:12px;padding:10px;text-align:center;font-size:12px}
+.btn{width:100%;padding:12px;border-radius:12px;border:none;font-weight:800;cursor:pointer}
+.btn-green{background:#00d084;color:#04210f}
+.btn-dark{background:#1a2744;color:#cfe0ff;border:1px solid #2a3d66}
+.ad-row{display:flex;align-items:center;gap:12px}
+.circle{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#00c2ff,#6a5cff);display:flex;align-items:center;justify-content:center;font-size:18px}
+.task-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#0f1a2e;border:1px solid #1e2e4a;border-radius:12px;margin-bottom:8px}
+.task-left{display:flex;align-items:center;gap:10px}
+.badge{font-size:11px;padding:6px 10px;border-radius:20px;background:#ff3b30;color:#fff;font-weight:800}
+.inv-card{border-radius:14px;padding:10px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.inv-card.green{background:#0a3a1f;border:1px solid #0f5a2e}
+.inv-card.blue2{background:#143a8a;border:1px solid #204db4}
+.inv-card.orange{background:#7a3a0a;border:1px solid #a84d0a}
+.levels{display:flex;gap:6px;margin-top:10px}
+.level{flex:1;background:#0f1a2e;border:1px solid #1e2e4a;border-radius:12px;padding:10px;text-align:center;font-size:12px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:#0a0f1c;border-top:1px solid #1e2e4a;display:flex;justify-content:space-around;padding:6px 0;z-index:30}
+.b-item{flex:1;text-align:center;font-size:11px;color:#8aa0bd;cursor:pointer;padding:6px 0}
+.b-item.active{color:#00d084;border-top:2px solid #00d084;margin-top:-8px;padding-top:8px}
+.chart{height:60px;background:linear-gradient(to top, rgba(255,255,255,0.15), transparent);border-radius:8px;margin:10px 0;position:relative;overflow:hidden}
+.chart::after{content:"";position:absolute;left:0;right:0;bottom:20px;height:2px;background:rgba(255,255,255,0.5);transform:skewY(-4deg)}
 </style>
 </head>
 <body>
-<div class="top"><span>🎮 <b>Bitget Tap</b> <span style="font-size:11px;color:#8a9ba8"> | Infinity</span></span><span><span id="balTop">💎 0</span> <span class="lang" onclick="switchLang()">🌐 BN</span></span></div>
-<div class="tabs">
-<div class="tab active" onclick="openTab('tap')">🎯 Tap</div>
-<div class="tab" onclick="openTab('wallet')">💰 Wallet</div>
-<div class="tab" onclick="openTab('shop')">📱 Ability</div>
-<div class="tab" onclick="openTab('task')">🎯 Task</div>
-<div class="tab" onclick="openTab('studio')">🎨 Studio</div>
+<div class="top">
+<div class="logo">Money<span>Plu$</span> <span style="font-size:11px;color:#8aa0bd;font-weight:400">• 24TRX • Trading Bot</span></div>
+<div style="display:flex;gap:6px"><span class="chip">🌐 EN</span><span class="chip">💬 Support</span></div>
 </div>
 
-<!-- ================= TAP 1-2000 ================= -->
-<div id="tap" class="page active">
-<div class="card" style="text-align:center">
-<h3 id="tTap">Tap to Earn 💎</h3><p class="sub">Tap = Gems, Ability barbe</p>
-<div class="coin" id="coin">💰</div>
-<div id="pts" class="gems">0</div>
-<p class="sub"><span id="powerTxt">Power: 10 / tap</span> | <span id="phoneTxt">Normal</span></p>
-<button class="btn" onclick="doTap()">🚀 TAP +<span id="powerBtn">10</span></button>
-<button class="btn btn2" onclick="claim()">📤 Claim to Bot</button>
-</div>
-<div class="card"><b>📈 Stats</b><p class="sub">Total: <span id="totalTap">0</span> | Gems: <span id="gemsTap">0</span></p></div>
-<!-- INFINITY TAP SLOTS 1-1990 - copy kore barale 2000 hobe, tab alada -->
-<div class="card" style="opacity:0.7"><b>🔓 Tap Slot 001</b><p class="sub">Khali - aste dhire add korba</p></div>
-<div class="card" style="opacity:0.7"><b>🔓 Tap Slot 002</b><p class="sub">Khali</p></div>
-<div class="card" style="opacity:0.7"><b>🔓 Tap Slot 003</b><p class="sub">Khali</p></div>
-<!-- ... Tap Slot 004 theke 500 porjonto same copy korle 500*4=2000 line -->
+<div class="tabs-top">
+<div class="tab active" onclick="openTab('ads')">▶️ ADS</div>
+<div class="tab" onclick="openTab('tasks')">📋 TASKS</div>
+<div class="tab" onclick="openTab('trade')">📈 TRADE</div>
+<div class="tab" onclick="openTab('friends')">👥 FRIENDS</div>
+<div class="tab" onclick="openTab('studio')">🎨 STUDIO</div>
 </div>
 
-<!-- ================= WALLET 1-2000 ================= -->
-<div id="wallet" class="page">
-<div class="card"><h3>💰 Wallet Add</h3><button class="btn" onclick="walletAdd()">💎 Wallet Add +5</button><p id="walletMsg" class="sub" style="text-align:center"></p><div class="card" style="margin-top:12px">💎 <span id="gemsWallet">0</span> | <span id="balWallet">0</span></div></div>
-<div class="card" style="opacity:0.7"><b>💳 Wallet Slot 001</b><p class="sub">History add korba</p></div>
-<div class="card" style="opacity:0.7"><b>💳 Wallet Slot 002</b><p class="sub">Khali</p></div>
+<!-- ADS PAGE - MoneyPlus -->
+<div id="ads" class="page active">
+<div class="card card-blue">
+<div class="sub" style="color:#d8e6ff">TOTAL BALANCE</div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div><div class="balance" id="totalBal">$1.50</div><div class="sub" style="color:#d8e6ff">Available to withdraw</div></div>
+<div style="text-align:right"><div style="font-size:12px">Hamja Bunny</div><div class="sub" style="color:#d8e6ff">ID: 7086515405</div></div>
+</div>
+<div class="row">
+<div class="pill">▶ Ads</div><div class="pill">✓ Tasks</div><div class="pill">👥 Invite</div>
+</div>
 </div>
 
-<!-- ================= ABILITY 1-2000 ================= -->
-<div id="shop" class="page">
-<div class="card"><h3>📱 Ability</h3>
-<div class="phone active" onclick="buyPhone('normal',10,0)"><span>📱</span><div><b>Normal</b><br><span class="sub">10 / tap Free</span></div><span style="margin-left:auto">✅</span></div>
-<div class="phone" onclick="buyPhone('iphone',25,500)"><span>📱</span><div><b>iPhone</b><br><span class="sub">25 / 500 Gems</span></div><span style="margin-left:auto;color:#00e676">Buy</span></div>
-<div class="phone" onclick="buyPhone('ultra',50,1500)"><span>📱</span><div><b>Ultra</b><br><span class="sub">50 / 1500 Gems</span></div><span style="margin-left:auto;color:#00e676">Buy</span></div>
-<div class="phone" onclick="buyPhone('gaming',100,4000)"><span>🎮</span><div><b>Gaming</b><br><span class="sub">100 / 4000 Gems</span></div><span style="margin-left:auto;color:#00e676">Buy</span></div>
+<div class="card">
+<div style="font-weight:800;margin-bottom:8px">● Watch & Earn</div>
+<div class="ad-row">
+<div class="circle">▶</div>
+<div style="flex:1">
+<div style="font-weight:800">Watch Ad <span style="float:right;background:#00d084;color:#04210a;padding:4px 8px;border-radius:20px;font-size:11px">+ $0.20</span></div>
+<div class="sub">Complete video to earn instantly</div>
 </div>
-<div class="card" style="opacity:0.7"><b>🛒 Shop Slot 001</b><p class="sub">Notun phone add korba</p></div>
+</div>
+<div style="margin-top:10px;background:#0f1a2e;height:6px;border-radius:10px;overflow:hidden"><div id="adBar" style="width:13%;height:100%;background:#00d084"></div></div>
+<div class="sub" style="display:flex;justify-content:space-between;margin-top:6px"><span>Ready to earn</span><span id="adCount">2 / 15 today</span></div>
+<button class="btn btn-green" style="margin-top:10px" onclick="watchAd()">▶️ Watch Ad +$0.20</button>
 </div>
 
-<!-- ================= TASK 1-2000 ================= -->
-<div id="task" class="page"><div class="card"><h3>🎯 Task</h3><button class="btn" onclick="Telegram.WebApp.close()">🤖 Bot e Dekho</button></div><div class="card" style="opacity:0.7"><b>🎯 Task Slot 001</b><p class="sub">Khali</p></div></div>
+<div class="row">
+<div class="card" style="flex:1;text-align:center"><div class="sub">TOTAL WATCHED</div><div style="font-size:18px;font-weight:900" id="totalWatched">2 ads</div></div>
+<div class="card" style="flex:1;text-align:center"><div class="sub">TOTAL EARNED</div><div style="font-size:18px;font-weight:900;color:#00d084" id="totalEarned">$1.50</div></div>
+</div>
+</div>
 
-<!-- ================= STUDIO 1-2000 ================= -->
-<div id="studio" class="page"><div class="card"><h3>🎨 Studio</h3><code style="background:#0f1419;padding:8px;border-radius:8px;display:block;font-size:11px;word-break:break-all">https://banybany1.github.io/miniapp/studio.html</code><button class="btn btn2" onclick="window.open('https://github.com/banybany1/miniapp/edit/main/index.html','_blank')">✏️ Edit</button></div><div class="card" style="opacity:0.7"><b>🎨 Studio Slot 001</b><p class="sub">Khali</p></div></div>
+<!-- TASKS PAGE - 24TRX -->
+<div id="tasks" class="page">
+<div class="card" style="text-align:center;background:#1a0f0f;border-color:#4a1e1e"><div style="color:#ff3b30;font-weight:900">◇ PROMOTE YOUR LINK</div></div>
+<div id="taskList"></div>
+<div class="card" style="opacity:0.7"><b>🔓 TASK Infinity Slot</b><p class="sub">2000 line porjonto task add korte parba — tab alada</p></div>
+</div>
+
+<!-- TRADE PAGE -->
+<div id="trade" class="page">
+<div class="card card-blue" style="text-align:left">
+<div class="sub" style="color:#d8e6ff">Total balance <span style="float:right;background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:20px;font-size:10px">● ACTIVE</span></div>
+<div class="balance">73 <span style="font-size:16px">USDT</span></div>
+<div class="chart"></div>
+<div class="row" style="color:#d8e6ff;font-size:11px"><div>Coins <b>73</b></div><div>Active <b>1 bots</b></div><div>USDT <b>$0.2463</b></div></div>
+</div>
+<div class="row">
+<div class="card" style="flex:1"><div class="sub">Successful trad...</div><b>82.04%</b></div>
+<div class="card" style="flex:1"><div class="sub">Total income</div><b>0.00 USDT</b></div>
+</div>
+<div class="row">
+<div class="card" style="flex:1"><div class="sub">Bots</div><b>BTC</b></div>
+<div class="card" style="flex:1"><div class="sub">Updated</div><b id="updTime">16:16:08</b></div>
+</div>
+<div class="card"><b>How to read the chart and reports</b><p class="sub" style="margin-top:6px">Each line on the chart is a limit buy/sell order. "B" is a buy at that point, "S" is a sell.</p>
+<div style="margin-top:10px;background:#0f1a2e;border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center">
+<span>BTC/USDT · GRID Bot <b style="color:#00d084">82,692 +0.61%</b></span><span style="font-size:11px;background:#2a62ff;padding:4px 8px;border-radius:20px">1 day</span>
+</div>
+</div>
+</div>
+
+<!-- FRIENDS PAGE -->
+<div id="friends" class="page">
+<div class="inv-card green"><span>🚀</span><div style="flex:1"><b>+30 coins and 10% USDT</b><div class="sub">Second invite</div></div></div>
+<div class="inv-card green"><span>🚀</span><div style="flex:1"><b>+20 coins and 10% USDT</b><div class="sub">Third invite</div></div></div>
+<div class="inv-card blue2"><span>🎁</span><div><b>+1 gift for every invite</b></div></div>
+<div class="inv-card orange"><span>📈</span><div style="flex:1"><b>Five-level program</b>
+<div class="levels"><div class="level">10%</div><div class="level">3%</div><div class="level">2%</div><div class="level">1%</div><div class="level">1%</div></div>
+<div class="sub">From every USDT top-up</div>
+</div></div>
+<div class="card">
+<b>Your referrals</b><div class="sub">Sorted by levels</div>
+<div style="display:flex;gap:6px;margin:8px 0"><span class="chip" style="background:#2a62ff;color:#fff">All · 0</span><span class="chip">L1 · 0</span><span class="chip">L2 · 0</span><span class="chip">L3 · 0</span></div>
+<p class="sub" style="text-align:center;padding:20px">No referrals yet</p>
+<button class="btn btn-dark" onclick="invite()">🔗 Invite Friends +10 coins</button>
+</div>
+</div>
+
+<!-- STUDIO PAGE -->
+<div id="studio" class="page">
+<div class="card">
+<h3>🎨 Mini Studio</h3><p class="sub">Telebot theke ashte dhire edit korba</p>
+<code style="background:#0f1a2e;padding:8px;border-radius:8px;display:block;margin:8px 0;font-size:11px;word-break:break-all">https://banybany1.github.io/miniapp/</code>
+<button class="btn btn-dark" onclick="window.open('https://github.com/banybany1/miniapp/edit/main/index.html','_blank')">✏️ GitHub e Edit Koro</button>
+<p class="sub" style="margin-top:8px">Proti tab alada — 2000 line porjonto barale 10000 hobe, kono tab nosto hobe na. Sob memory te save thakbe.</p>
+</div>
+</div>
+
+<div class="bottom">
+<div class="b-item active" onclick="openTab('ads');setBottom(this)">▶<br>ADS</div>
+<div class="b-item" onclick="openTab('tasks');setBottom(this)">✓<br>TASKS</div>
+<div class="b-item" onclick="openTab('trade');setBottom(this)">↔<br>Trade</div>
+<div class="b-item" onclick="openTab('friends');setBottom(this)">👥<br>Friends</div>
+<div class="b-item" onclick="claimAll()">💎<br>CLAIM</div>
+</div>
 
 <script>
 Telegram.WebApp.ready();Telegram.WebApp.expand();
-let pts=0,gems=0,power=10,phone='Normal',lang='bn';
-function openTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');let m={tap:0,wallet:1,shop:2,task:3,studio:4}[id];document.querySelectorAll('.tab')[m].classList.add('active')}
-function doTap(){pts+=power;gems+=power;document.getElementById('pts').textContent=pts;updateBal();document.getElementById('totalTap').textContent=pts;if(navigator.vibrate) navigator.vibrate(20)}
-function updateBal(){document.getElementById('balTop').textContent='💎 '+gems;document.getElementById('gemsWallet').textContent=gems;document.getElementById('balWallet').textContent=gems;document.getElementById('gemsTap').textContent=gems;document.getElementById('powerTxt').textContent='Power: '+power+' / tap';document.getElementById('phoneTxt').textContent=phone;document.getElementById('powerBtn').textContent=power}
-function walletAdd(){gems+=5;pts+=5;document.getElementById('pts').textContent=pts;updateBal();document.getElementById('walletMsg').textContent='✅ +5 Gems';setTimeout(()=>document.getElementById('walletMsg').textContent='',1500)}
-function buyPhone(id,p,cost){if(gems<cost){alert(cost+' Gems lagbe');return}if(cost>0)gems-=cost;power=p;phone=id;updateBal();Telegram.WebApp.HapticFeedback.notificationOccurred('success')}
-function claim(){if(pts<10){alert('10+');return}Telegram.WebApp.sendData(JSON.stringify({action:'tap',points:pts,phone:phone,power:power}))}
-function switchLang(){lang=lang=='bn'?'en':'bn';document.querySelector('.lang').textContent=lang=='bn'?'🌐 BN':'🌐 EN'}
-document.getElementById('coin').onclick=doTap;updateBal();
+let watched=2, earned=1.50;
+let tasks = ["HCCBBVXXXG5","USDT12708","VIPXAL1UU1","tok4ne4","BOTCA10","DAWSHA_PRO"];
+function renderTasks(){
+ let html="";
+ tasks.forEach(t=>{
+   html+= `<div class="task-item"><div class="task-left"><div style="width:34px;height:34px;background:#1a0f0f;border-radius:8px;display:flex;align-items:center;justify-content:center">👤</div><div><b>${t}</b><div class="sub" style="color:#ff3b30">+0.1 GHS</div></div></div><button class="badge" onclick="claimTask('${t}')">+0.1 GHS</button></div>`;
+ });
+ document.getElementById('taskList').innerHTML=html;
+}
+renderTasks();
+function openTab(id){
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ let m={ads:0,tasks:1,trade:2,friends:3,studio:4}[id];
+ if(m!==undefined) document.querySelectorAll('.tab')[m].classList.add('active');
+ window.scrollTo(0,0);
+}
+function setBottom(el){
+ document.querySelectorAll('.b-item').forEach(b=>b.classList.remove('active'));
+ el.classList.add('active');
+}
+function watchAd(){
+ if(watched>=15){alert('15/15 done today');return}
+ watched++; earned+=0.20;
+ document.getElementById('adCount').textContent=watched+' / 15 today';
+ document.getElementById('totalWatched').textContent=watched+' ads';
+ document.getElementById('totalEarned').textContent='$'+earned.toFixed(2);
+ document.getElementById('totalBal').textContent='$'+earned.toFixed(2);
+ document.getElementById('adBar').style.width=(watched/15*100)+'%';
+ Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+}
+function claimTask(id){
+ earned+=0.1; watched++;
+ document.getElementById('totalEarned').textContent='$'+earned.toFixed(2);
+ document.getElementById('totalBal').textContent='$'+earned.toFixed(2);
+ Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+ alert(id+' +0.1 GHS claimed');
+}
+function invite(){
+ Telegram.WebApp.sendData(JSON.stringify({action:'invite',bonus:10}));
+}
+function claimAll(){
+ if(earned<0.2){alert('Watch ad first');return}
+ Telegram.WebApp.sendData(JSON.stringify({action:'tap',points:Math.round(earned*100),source:'moneyplus'}));
+}
+setInterval(()=>{ document.getElementById('updTime').textContent=new Date().toLocaleTimeString() },1000);
+// INFINITY: proti .page e 2000 line <div class="card"> add korle 5x2000=10000 hobe. Tab alada tai kono osubidha hobe na.
 </script>
 </body>
 </html>
