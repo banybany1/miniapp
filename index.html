@@ -1,11 +1,37 @@
 <!DOCTYPE html>
-<html>
-<head><meta name="viewport" content="width=device-width">
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#0b0e11;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+.top{width:100%;max-width:380px;display:flex;justify-content:space-between;align-items:center;padding:12px;background:#151a21;border-radius:14px;margin-bottom:16px}
+.top b{color:#00e676}
+.card{width:100%;max-width:380px;background:#151a21;border-radius:18px;padding:20px;text-align:center;border:1px solid #00e67630}
+.coin{width:120px;height:120px;background:linear-gradient(135deg,#00e676,#00b248);border-radius:50%;margin:16px auto;display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 8px 32px #00e67660;cursor:pointer;user-select:none;transition:transform 0.1s}
+.coin:active{transform:scale(0.92)}
+.btn{width:100%;padding:14px;background:#00e676;color:#0b0e11;border:none;border-radius:12px;font-weight:800;font-size:16px;margin-top:12px;cursor:pointer}
+.sub{color:#8a9ba8;font-size:13px;margin-top:8px}
+</style>
 </head>
-<body style="text-align:center;padding:30px">
-<h2>🎮 Bitget Tap Game</h2>
-<button onclick="Telegram.WebApp.sendData(JSON.stringify({action:'tap',points:10}))"
- style="padding:15px 30px;font-size:18px">Tap +10 Points</button>
+<body>
+<div class="top"><span>🎮 <b>Bitget Tap</b></span><span id="bal">💰 ...</span></div>
+<div class="card">
+<h3>Tap to Earn</h3>
+<p class="sub">Tap coin — প্রতি tap এ +10</p>
+<div class="coin" id="coin">💰</div>
+<div id="pts" style="font-size:28px;font-weight:800;color:#00e676">0</div>
+<button class="btn" onclick="tap()">🚀 TAP +10</button>
+<button class="btn" style="background:#1e2a24;color:#00e676;border:1px solid #00e676" onclick="send()">📤 Claim to Bot</button>
+<p class="sub">Keyboard থেকে খুললে Claim auto balance এ যাবে</p>
+</div>
+<script>
+let pts=0;const coin=document.getElementById('coin'),ptsEl=document.getElementById('pts');
+Telegram.WebApp.ready();Telegram.WebApp.expand();
+function tap(){pts+=10;ptsEl.textContent=pts;coin.style.transform='scale(0.88)';setTimeout(()=>coin.style.transform='',120);if(navigator.vibrate)navigator.vibrate(20);}
+function send(){if(pts<10){alert('10+ points lagbe');return;}Telegram.WebApp.sendData(JSON.stringify({action:'tap',points:pts}));}
+coin.onclick=tap;
+</script>
 </body>
 </html>
