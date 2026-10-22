@@ -1,29 +1,33 @@
 # NEKOVERSE — Anime Energy OS
 
-Premium dark iOS + Anime web app (single `index.html`).
+Premium dark **iOS + Anime** style web app: missions, XP, coins, shop, wallet UI, admin panel, particles, ambient music.
 
-## GitHub Pages
+## Live (GitHub Pages)
 
-1. Create a new **public** repo
-2. Upload **only** these files (or push via git):
-   - `index.html`
-   - `README.md`
-3. Repo **Settings → Pages**
-   - Source: **Deploy from a branch**
-   - Branch: **main** → folder: **/ (root)**
-   - Save
-4. Open: `https://YOUR_USERNAME.github.io/REPO_NAME/`
+1. Push this repo to GitHub  
+2. **Settings → Pages → Source: Deploy from a branch → `main` / root**  
+3. Open: `https://YOUR_USERNAME.github.io/REPO_NAME/`
 
-## Local
+## Run locally
 
-Open `index.html` in Chrome / Safari / Edge.
+Open `index.html` in Chrome / Safari / Edge (double-click or Live Server).
 
-## Admin
+## Features
 
-Password: `nekoadmin`
+- ~95+ missions · XP / Level / Coins / Streak  
+- Daily reward · Shop · Achievements  
+- Wallet connect UI (Telegram, Binance Web3, Trust, MetaMask, WalletConnect, Tonkeeper) — demo mode  
+- Admin panel (password: `nekoadmin`)  
+- Settings: SFX, Music, Particles, **1K/2K/4K/8K** quality, **30/60/120/Unlimited FPS**  
+- Dark glass UI · starfield · energy effects  
 
 ## Notes
 
-- Demo cashier: Min withdraw **10 USDT**, Max **500 USDT**
-- Wallet / deposit / withdraw = UI demo (no real chain TX)
-- Android WebView (Bitget/Telegram) uses auto lite mode
+- Single-file app (`index.html` only)  
+- Data saved in `localStorage`  
+- Background music needs a user tap (browser policy)  
+- Wallet is **UI demo only** — no real blockchain transactions  
+
+## License
+
+MIT — use freely.

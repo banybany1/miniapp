@@ -1,1 +1,3570 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#050510">
+<title>NEKOVERSE — Anime Energy OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+/* ================================================================
+   NEKOVERSE — Anime Energy OS
+   Premium Dark iOS + Anime • Glass • Neon • Energy
+   Full App Shell • Admin Panel • 48 Missions • Audio Engine
+   ================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
+:root {
+  --bg-void: #050510;
+  --bg-deep: #0a0a18;
+  --bg-card: rgba(18, 18, 36, 0.72);
+  --bg-glass: rgba(255, 255, 255, 0.055);
+  --bg-glass-strong: rgba(255, 255, 255, 0.09);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(168, 85, 247, 0.35);
+  --pink: #ff2d95;
+  --pink-soft: #ff6bb5;
+  --purple: #a855f7;
+  --cyan: #22d3ee;
+  --blue: #3b82f6;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --text: #f1f5f9;
+  --text-dim: #94a3b8;
+  --text-mute: #64748b;
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-ios: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --glow-pink: 0 0 18px rgba(255, 45, 149, 0.55), 0 0 40px rgba(255, 45, 149, 0.25);
+  --glow-cyan: 0 0 18px rgba(34, 211, 238, 0.5), 0 0 36px rgba(34, 211, 238, 0.22);
+  --glow-purple: 0 0 20px rgba(168, 85, 247, 0.5);
+  --glow-gold: 0 0 18px rgba(251, 191, 36, 0.5);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg-void);
+  color: var(--text);
+  user-select: none;
+}
+
+body {
+  position: relative;
+  overscroll-behavior: none;
+}
+
+/* ---------- STARFIELD CANVAS ---------- */
+#star-canvas, #energy-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+#energy-canvas { z-index: 1; }
+
+/* ---------- FLOATING ORBS ---------- */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  animation: orbDrift 22s var(--ease-smooth) infinite;
+}
+.orb-a {
+  width: 360px; height: 360px;
+  background: radial-gradient(circle, var(--pink), transparent 68%);
+  top: -100px; left: -80px;
+}
+.orb-b {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, var(--cyan), transparent 68%);
+  bottom: 5%; right: -70px;
+  animation-delay: -7s;
+}
+.orb-c {
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, var(--purple), transparent 68%);
+  top: 45%; left: 25%;
+  animation-delay: -14s;
+}
+@keyframes orbDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -50px) scale(1.1); }
+  66% { transform: translate(-30px, 30px) scale(0.92); }
+}
+
+/* AnimeOS-inspired extras (keep dark iOS core) */
+.aurora {
+  position: fixed;
+  inset: -25%;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(from 120deg at 50% 50%, transparent, rgba(168,85,247,.07), transparent, rgba(34,211,238,.06), transparent, rgba(255,45,149,.05), transparent);
+  filter: blur(70px);
+  animation: auroraSpin 40s linear infinite;
+  opacity: 0.9;
+}
+@keyframes auroraSpin { to { transform: rotate(360deg); } }
+.energy-ring {
+  position: fixed;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 900;
+  animation: energyBurst 0.55s ease-out forwards;
+  box-shadow: 0 0 16px rgba(34,211,238,0.5);
+}
+@keyframes energyBurst {
+  0% { transform: scale(0.5); opacity: 0.95; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ---------- APP SHELL ---------- */
+.app-shell {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+  padding-bottom: calc(72px + var(--safe-bot));
+}
+@media (min-width: 900px) {
+  .app-shell {
+    max-width: 480px;
+    box-shadow: 0 0 80px rgba(168,85,247,0.12), 0 0 0 1px rgba(255,255,255,0.04);
+    border-radius: 0;
+  }
+}
+
+/* ---------- SCREENS ---------- */
+.screen {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  animation: screenIn 0.45s var(--ease-smooth) both;
+}
+.screen.active { display: flex; }
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- INTRO / SPLASH ---------- */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-void);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.9s var(--ease-smooth), visibility 0.9s;
+}
+.intro.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.intro-logo {
+  font-size: 80px;
+  animation: logoPulse 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(255, 45, 149, 0.7));
+}
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.12) rotate(3deg); filter: drop-shadow(0 0 50px rgba(34, 211, 238, 0.8)); }
+}
+.intro-title {
+  margin-top: 18px;
+  font-size: 1.9rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(105deg, var(--pink), var(--cyan), var(--purple), var(--pink));
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 4s linear infinite;
+}
+@keyframes shimmerText {
+  to { background-position: 300% center; }
+}
+.intro-sub {
+  margin-top: 8px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.intro-bar {
+  width: 160px;
+  height: 4px;
+  margin-top: 28px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.intro-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--pink), var(--cyan));
+  animation: loadBar 1.5s var(--ease-smooth) forwards;
+  box-shadow: var(--glow-pink);
+}
+@keyframes loadBar {
+  to { width: 100%; }
+}
+
+/* ---------- TOP BAR ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 8px;
+  flex-shrink: 0;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar-ring {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  position: relative;
+  box-shadow: var(--glow-pink);
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+.avatar-ring::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--pink), var(--cyan), var(--purple), var(--pink));
+  z-index: -1;
+  animation: spin 5s linear infinite;
+  opacity: 0.85;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #fff 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #fff 0);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes avatarPulse {
+  0%, 100% { box-shadow: var(--glow-pink); }
+  50% { box-shadow: 0 0 28px rgba(255,45,149,0.85), 0 0 55px rgba(168,85,247,0.35); }
+}
+.greet h1 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #fff, var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.greet p {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text);
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease-spring), background 0.2s, box-shadow 0.2s;
+}
+.icon-btn:active { transform: scale(0.86); }
+.icon-btn.active {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  border-color: transparent;
+  box-shadow: var(--glow-pink);
+}
+
+/* ---------- HERO CARD ---------- */
+.hero-card {
+  margin: 6px 16px 12px;
+  padding: 18px 16px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, rgba(30,20,50,0.85), rgba(15,15,35,0.9));
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  animation: fadeSlide 0.6s 0.1s both var(--ease-smooth);
+}
+.hero-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+}
+.hero-card::after {
+  content: "";
+  position: absolute;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,0.25), transparent 70%);
+  top: -60px; right: -40px;
+  pointer-events: none;
+}
+.hero-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.hero-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--cyan));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: var(--glow-pink);
+  flex-shrink: 0;
+  position: relative;
+}
+.hero-avatar .lvl-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  color: #111;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  box-shadow: var(--glow-gold);
+}
+.hero-info { flex: 1; min-width: 0; }
+.hero-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.hero-title {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.xp-bar-wrap {
+  margin-top: 10px;
+  position: relative;
+}
+.xp-bar-bg {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  box-shadow: 0 0 12px rgba(34,211,238,0.5);
+  transition: width 0.6s var(--ease-smooth);
+  width: 0%;
+}
+.xp-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+  position: relative;
+  z-index: 1;
+}
+.stat-pill {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 10px 6px;
+  text-align: center;
+  transition: transform 0.25s var(--ease-spring);
+}
+.stat-pill:active { transform: scale(0.94); }
+.stat-pill .val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.stat-pill .lbl {
+  font-size: 0.65rem;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* ---------- DAILY REWARD BANNER ---------- */
+.daily-banner {
+  margin: 0 16px 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.08));
+  border: 1px solid rgba(251,191,36,0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+  flex-shrink: 0;
+  animation: fadeSlide 0.6s 0.18s both var(--ease-smooth);
+}
+.daily-banner:active { transform: scale(0.97); }
+.daily-banner.claimed {
+  opacity: 0.55;
+  pointer-events: none;
+}
+.daily-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: var(--glow-gold);
+  flex-shrink: 0;
+}
+.daily-text { flex: 1; }
+.daily-text h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.daily-text p {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.daily-claim {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  color: #111;
+  font-weight: 800;
+  font-size: 0.78rem;
+  cursor: pointer;
+  box-shadow: var(--glow-gold);
+  transition: transform 0.25s var(--ease-spring);
+}
+.daily-claim:active { transform: scale(0.92); }
+
+/* ---------- FILTER CHIPS ---------- */
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 10px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+  animation: fadeSlide 0.6s 0.25s both var(--ease-smooth);
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-glass);
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-spring);
+  white-space: nowrap;
+}
+.chip.active {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--glow-pink);
+  transform: scale(1.04);
+}
+.chip:active { transform: scale(0.94); }
+
+/* ---------- MISSION LIST ---------- */
+.mission-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--purple) transparent;
+}
+.mission-scroll::-webkit-scrollbar { width: 3px; }
+.mission-scroll::-webkit-scrollbar-thumb {
+  background: var(--purple);
+  border-radius: 4px;
+}
+
+.mission-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border-soft);
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  animation: cardPop 0.45s var(--ease-spring) both;
+  transition: transform 0.3s var(--ease-ios), opacity 0.3s, border-color 0.3s;
+  cursor: pointer;
+}
+.mission-card:active { transform: scale(0.98); }
+.mission-card.done {
+  opacity: 0.5;
+}
+.mission-card.done .mission-title {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+@keyframes cardPop {
+  from { opacity: 0; transform: translateY(18px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.mission-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3.5px;
+  border-radius: 3px 0 0 3px;
+}
+.mission-card.diff-easy::before { background: linear-gradient(180deg, var(--green), var(--cyan)); }
+.mission-card.diff-medium::before { background: linear-gradient(180deg, var(--gold), #f59e0b); }
+.mission-card.diff-hard::before { background: linear-gradient(180deg, var(--pink), var(--red)); box-shadow: 0 0 10px rgba(255,45,149,0.5); }
+.mission-card.diff-legend::before {
+  background: linear-gradient(180deg, var(--purple), var(--cyan));
+  box-shadow: 0 0 12px rgba(168,85,247,0.6);
+}
+
+.m-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  transition: all 0.3s var(--ease-spring);
+  background: transparent;
+}
+.m-check.checked {
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  border-color: transparent;
+  box-shadow: var(--glow-cyan);
+  transform: scale(1.08);
+}
+.m-body { flex: 1; min-width: 0; }
+.mission-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.m-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+.m-tag {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(168,85,247,0.22);
+  color: #c4b5fd;
+  font-weight: 600;
+}
+.m-diff {
+  font-size: 0.62rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.diff-easy .m-diff { background: rgba(52,211,153,0.2); color: var(--green); }
+.diff-medium .m-diff { background: rgba(251,191,36,0.2); color: var(--gold); }
+.diff-hard .m-diff { background: rgba(255,45,149,0.2); color: var(--pink-soft); }
+.diff-legend .m-diff { background: rgba(168,85,247,0.25); color: #c4b5fd; }
+.m-reward {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.m-xp, .m-coin {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.m-xp {
+  background: rgba(34,211,238,0.15);
+  color: var(--cyan);
+}
+.m-coin {
+  background: rgba(251,191,36,0.15);
+  color: var(--gold);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  animation: fadeSlide 0.5s both;
+}
+.empty-state .big-emoji {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 12px;
+  animation: bounceY 2.2s ease-in-out infinite;
+}
+@keyframes bounceY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.empty-state h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--pink), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.empty-state p { color: var(--text-dim); font-size: 0.85rem; }
+
+/* ---------- BOTTOM NAV ---------- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  padding: 8px 12px calc(10px + var(--safe-bot));
+  background: rgba(8, 8, 18, 0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  justify-content: space-around;
+  z-index: 80;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-mute);
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.25s, transform 0.25s var(--ease-spring);
+  border-radius: 12px;
+}
+.nav-item .nav-icon {
+  font-size: 22px;
+  transition: transform 0.3s var(--ease-spring);
+}
+.nav-item.active {
+  color: var(--cyan);
+}
+.nav-item.active .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px rgba(34,211,238,0.6));
+}
+.nav-item:active { transform: scale(0.9); }
+
+/* ---------- FAB ---------- */
+.fab {
+  position: fixed;
+  bottom: calc(80px + var(--safe-bot));
+  right: max(20px, calc(50% - 200px));
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  color: #fff;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 70;
+  box-shadow: var(--glow-pink), 0 6px 24px rgba(255,45,149,0.35);
+  transition: transform 0.3s var(--ease-spring), background 0.3s;
+  animation: fabGlow 3.5s ease-in-out infinite;
+}
+@keyframes fabGlow {
+  0%, 100% { box-shadow: var(--glow-pink), 0 6px 24px rgba(255,45,149,0.35); }
+  50% { box-shadow: 0 0 35px rgba(255,45,149,0.8), 0 0 60px rgba(168,85,247,0.35); }
+}
+.fab:active { transform: scale(0.88) rotate(90deg); }
+.fab.open {
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--red), #f97316);
+}
+
+/* ---------- MODAL ---------- */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-ios);
+}
+.modal-bg.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-sheet {
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(180deg, #1a1a30 0%, #10101e 100%);
+  border-radius: 28px 28px 0 0;
+  padding: 12px 20px calc(28px + var(--safe-bot));
+  transform: translateY(110%);
+  transition: transform 0.42s var(--ease-smooth);
+  border-top: 1px solid var(--border-soft);
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-bg.show .modal-sheet {
+  transform: translateY(0);
+}
+.modal-sheet::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 18%; right: 18%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+  border-radius: 0 0 4px 4px;
+}
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
+  margin: 4px auto 16px;
+}
+.sheet-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 18px;
+  background: linear-gradient(90deg, #fff, var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.form-g { margin-bottom: 14px; }
+.form-g label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.form-inp {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.form-inp:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.18);
+}
+.form-inp::placeholder { color: rgba(148,163,184,0.45); }
+.select-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sel-btn {
+  flex: 1;
+  min-width: 70px;
+  padding: 11px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-spring);
+  text-align: center;
+}
+.sel-btn.active {
+  border-color: transparent;
+  color: #fff;
+}
+.sel-btn[data-v="easy"].active { background: linear-gradient(135deg, var(--green), var(--cyan)); box-shadow: 0 0 14px rgba(52,211,153,0.4); }
+.sel-btn[data-v="medium"].active { background: linear-gradient(135deg, var(--gold), #f59e0b); box-shadow: var(--glow-gold); }
+.sel-btn[data-v="hard"].active { background: linear-gradient(135deg, var(--pink), var(--red)); box-shadow: var(--glow-pink); }
+.sel-btn[data-v="legend"].active { background: linear-gradient(135deg, var(--purple), var(--cyan)); box-shadow: var(--glow-purple); }
+.sheet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease-spring);
+}
+.btn:active { transform: scale(0.96); }
+.btn-ghost {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-dim);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  color: #fff;
+  box-shadow: var(--glow-pink);
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  color: #111;
+  box-shadow: var(--glow-gold);
+}
+
+/* ---------- PROFILE SCREEN ---------- */
+.profile-header {
+  text-align: center;
+  padding: 20px 16px 12px;
+  animation: fadeSlide 0.5s both;
+}
+.profile-big-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--cyan));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  margin: 0 auto 12px;
+  box-shadow: var(--glow-pink);
+  position: relative;
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+.profile-big-avatar .edit-av {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  border: 2px solid var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+.profile-name-big {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.profile-title-big {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 12px 16px;
+}
+.p-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-align: center;
+  backdrop-filter: blur(16px);
+}
+.p-stat .num {
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.p-stat .lab {
+  font-size: 0.7rem;
+  color: var(--text-mute);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.profile-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+.profile-actions {
+  padding: 8px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-glass);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.25s var(--ease-spring);
+}
+.profile-btn:active { transform: scale(0.97); background: var(--bg-glass-strong); }
+
+/* Wallet section */
+.wallet-section {
+  padding: 4px 16px 12px;
+}
+.wallet-section h3 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.wallet-connected {
+  background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(168,85,247,0.1));
+  border: 1px solid rgba(34,211,238,0.35);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: none;
+}
+.wallet-connected.show { display: block; }
+.wallet-connected .wc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wallet-connected .wc-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: var(--bg-glass);
+  flex-shrink: 0;
+}
+.wallet-connected .wc-info { flex: 1; min-width: 0; }
+.wallet-connected .wc-name { font-weight: 700; font-size: 0.92rem; }
+.wallet-connected .wc-addr {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+  font-family: ui-monospace, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wallet-connected .wc-bal {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin-top: 6px;
+}
+.btn-disconnect {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(248,113,113,0.4);
+  background: transparent;
+  color: var(--red);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.wallet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.wallet-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 14px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-spring);
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+}
+.wallet-card:active { transform: scale(0.96); }
+.wallet-card:hover {
+  border-color: rgba(168,85,247,0.45);
+  box-shadow: 0 0 20px rgba(168,85,247,0.15);
+}
+.wallet-card .w-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 6px;
+}
+.wallet-card .w-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.wallet-card .w-sub {
+  font-size: 0.65rem;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+.wallet-card.connecting {
+  pointer-events: none;
+  opacity: 0.7;
+}
+.wallet-card.connecting::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.15), transparent);
+  animation: shimmerSlide 1.2s linear infinite;
+}
+@keyframes shimmerSlide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* Badges / Achievements */
+.badge-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 16px 12px;
+  scrollbar-width: none;
+}
+.badge-row::-webkit-scrollbar { display: none; }
+.badge-pill {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.45;
+  transition: all 0.3s;
+}
+.badge-pill.unlocked {
+  opacity: 1;
+  border-color: rgba(251,191,36,0.4);
+  box-shadow: 0 0 12px rgba(251,191,36,0.2);
+}
+
+/* Invite / referral */
+.invite-card {
+  margin: 0 16px 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(255,45,149,0.1));
+  border: 1px solid rgba(168,85,247,0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.invite-card .inv-icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.invite-card .inv-body { flex: 1; }
+.invite-card h4 { font-size: 0.88rem; font-weight: 700; }
+.invite-card p { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+.invite-code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.3);
+  cursor: pointer;
+  border: 1px solid rgba(34,211,238,0.3);
+}
+
+/* Activity feed mini */
+.activity-list {
+  padding: 0 16px 8px;
+}
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.82rem;
+}
+.activity-item .act-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.activity-item .act-text { flex: 1; color: var(--text-dim); }
+.activity-item .act-time { font-size: 0.68rem; color: var(--text-mute); }
+
+/* Wallet connect modal */
+.wallet-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.wallet-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-glass);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-spring);
+}
+.wallet-option:active { transform: scale(0.97); }
+.wallet-option:hover {
+  border-color: rgba(34,211,238,0.4);
+  background: rgba(34,211,238,0.08);
+}
+.wallet-option .wo-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.wallet-option .wo-body { flex: 1; }
+.wallet-option .wo-name { font-weight: 700; font-size: 0.95rem; }
+.wallet-option .wo-desc { font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
+.wallet-option .wo-badge {
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(52,211,153,0.2);
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* ---------- SHOP / UPGRADES ---------- */
+.shop-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 20px;
+}
+.shop-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(16px);
+  animation: cardPop 0.4s var(--ease-spring) both;
+  transition: transform 0.25s;
+}
+.shop-item:active { transform: scale(0.98); }
+.shop-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.shop-body { flex: 1; }
+.shop-body h4 { font-size: 0.95rem; font-weight: 700; }
+.shop-body p { font-size: 0.72rem; color: var(--text-dim); margin-top: 3px; }
+.shop-buy {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  color: #111;
+  font-weight: 800;
+  font-size: 0.78rem;
+  cursor: pointer;
+  box-shadow: var(--glow-gold);
+  transition: transform 0.25s var(--ease-spring);
+  white-space: nowrap;
+}
+.shop-buy:active { transform: scale(0.92); }
+.shop-buy.owned {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-dim);
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* ---------- ADMIN PANEL ---------- */
+.admin-gate {
+  padding: 40px 24px;
+  text-align: center;
+}
+.admin-gate h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, var(--pink), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.admin-gate p { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 20px; }
+.admin-input {
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto 14px;
+  display: block;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 0.15em;
+  outline: none;
+}
+.admin-input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(255,45,149,0.2);
+}
+.admin-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px 20px;
+}
+.admin-section {
+  margin-bottom: 20px;
+}
+.admin-section h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--cyan);
+}
+.admin-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 8px;
+}
+.admin-card .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+.admin-card .row:last-child { margin-bottom: 0; }
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.admin-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-glass);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-btn:active { transform: scale(0.95); }
+.admin-btn.danger {
+  border-color: rgba(248,113,113,0.4);
+  color: var(--red);
+}
+.admin-btn.ok {
+  border-color: rgba(52,211,153,0.4);
+  color: var(--green);
+}
+
+/* ---------- SETTINGS ---------- */
+.settings-list {
+  padding: 12px 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.set-row span { font-size: 0.92rem; font-weight: 500; }
+.toggle {
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.toggle.on {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  box-shadow: var(--glow-pink);
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s var(--ease-spring);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.toggle.on::after { transform: translateX(22px); }
+
+/* ---------- TOAST ---------- */
+.toast {
+  position: fixed;
+  top: calc(16px + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%) translateY(-90px);
+  background: linear-gradient(135deg, #1e1e35, #141428);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  z-index: 500;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5), var(--glow-purple);
+  border: 1px solid rgba(168,85,247,0.3);
+  opacity: 0;
+  transition: all 0.4s var(--ease-spring);
+  white-space: nowrap;
+  max-width: 90%;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- REWARD OVERLAY ---------- */
+.reward-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.reward-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.reward-box {
+  text-align: center;
+  animation: rewardPop 0.5s var(--ease-spring);
+}
+@keyframes rewardPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.reward-emoji {
+  font-size: 72px;
+  display: block;
+  margin-bottom: 12px;
+  animation: logoPulse 1.5s ease-in-out infinite;
+}
+.reward-box h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--gold), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.reward-box p {
+  color: var(--text-dim);
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+.reward-vals {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 16px;
+}
+.reward-vals span {
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-soft);
+}
+
+/* ---------- LEVEL UP FLASH ---------- */
+.levelup-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.levelup-flash.show { opacity: 1; pointer-events: auto; }
+.levelup-content {
+  text-align: center;
+  animation: rewardPop 0.55s var(--ease-spring);
+}
+.levelup-content .big {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 8px;
+}
+.levelup-content h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--gold), var(--cyan), var(--pink));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 2s linear infinite;
+}
+
+/* ---------- UTILS ---------- */
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.scroll-pad { padding-bottom: 10px; }
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 16px 8px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 380px) {
+  .hero-name { font-size: 1.05rem; }
+  .stat-pill .val { font-size: 1rem; }
+  .mission-title { font-size: 0.88rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- CANVAS LAYERS -->
+<canvas id="star-canvas"></canvas>
+<canvas id="energy-canvas"></canvas>
+<div class="aurora" aria-hidden="true"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<div class="orb orb-c"></div>
+
+<!-- INTRO -->
+<div class="intro" id="intro">
+  <div class="intro-logo">⚡</div>
+  <div class="intro-title">NEKOVERSE</div>
+  <div class="intro-sub">Anime Energy OS • Premium</div>
+  <div class="intro-bar"><div class="intro-bar-fill"></div></div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell" id="app">
+
+  <!-- ===== HOME / MISSIONS ===== -->
+  <div class="screen active" id="screen-home">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="avatar-ring" id="top-avatar">🌸</div>
+        <div class="greet">
+          <h1 id="greet-text">こんにちは!</h1>
+          <p id="date-text">—</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="btn-music" title="Music">🎵</button>
+        <button class="icon-btn" id="btn-settings" title="Settings">⚙️</button>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-row">
+        <div class="hero-avatar">
+          <span id="hero-emoji">🌸</span>
+          <span class="lvl-badge" id="hero-lvl">Lv.1</span>
+        </div>
+        <div class="hero-info">
+          <div class="hero-name" id="hero-name">Neko Pilot</div>
+          <div class="hero-title" id="hero-title">Rookie Explorer</div>
+          <div class="xp-bar-wrap">
+            <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
+            <div class="xp-label">
+              <span id="xp-cur">0 XP</span>
+              <span id="xp-next">100 XP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-pill"><div class="val" id="stat-coins">0</div><div class="lbl">Coins</div></div>
+        <div class="stat-pill"><div class="val" id="stat-done">0</div><div class="lbl">Done</div></div>
+        <div class="stat-pill"><div class="val" id="stat-streak">0</div><div class="lbl">Streak</div></div>
+      </div>
+    </div>
+
+    <div class="daily-banner" id="daily-banner">
+      <div class="daily-icon">🎁</div>
+      <div class="daily-text">
+        <h3>Daily Energy Reward</h3>
+        <p id="daily-desc">Claim +50 XP & +25 Coins</p>
+      </div>
+      <button class="daily-claim" id="daily-claim-btn">CLAIM</button>
+    </div>
+
+    <div class="filter-scroll" id="filter-bar">
+      <button class="chip active" data-f="all">✨ All</button>
+      <button class="chip" data-f="active">🔥 Active</button>
+      <button class="chip" data-f="done">✅ Done</button>
+      <button class="chip" data-f="easy">🌱 Easy</button>
+      <button class="chip" data-f="medium">⚡ Med</button>
+      <button class="chip" data-f="hard">💥 Hard</button>
+      <button class="chip" data-f="legend">👑 Legend</button>
+    </div>
+
+    <div class="mission-scroll" id="mission-list"></div>
+  </div>
+
+  <!-- ===== SHOP ===== -->
+  <div class="screen" id="screen-shop">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="avatar-ring">🛒</div>
+        <div class="greet"><h1>Energy Shop</h1><p>Spend coins • Power up</p></div>
+      </div>
+    </div>
+    <div class="section-label">Upgrades & Cosmetics</div>
+    <div class="shop-scroll" id="shop-list"></div>
+  </div>
+
+  <!-- ===== PROFILE ===== -->
+  <div class="screen" id="screen-profile">
+    <div class="profile-scroll">
+      <div class="profile-header">
+        <div class="profile-big-avatar">
+          <span id="profile-emoji">🌸</span>
+          <div class="edit-av" id="edit-avatar-btn">✏️</div>
+        </div>
+        <div class="profile-name-big" id="profile-name">Neko Pilot</div>
+        <div class="profile-title-big" id="profile-title">Rookie Explorer</div>
+      </div>
+
+      <div class="profile-stats-grid">
+        <div class="p-stat"><div class="num" id="p-level">1</div><div class="lab">Level</div></div>
+        <div class="p-stat"><div class="num" id="p-xp">0</div><div class="lab">Total XP</div></div>
+        <div class="p-stat"><div class="num" id="p-coins">0</div><div class="lab">Coins</div></div>
+        <div class="p-stat"><div class="num" id="p-missions">0</div><div class="lab">Missions</div></div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="section-label">Achievements</div>
+      <div class="badge-row" id="badge-row">
+        <div class="badge-pill" data-badge="first">🎯 First Mission</div>
+        <div class="badge-pill" data-badge="streak3">🔥 3-Day Streak</div>
+        <div class="badge-pill" data-badge="lvl5">⭐ Level 5</div>
+        <div class="badge-pill" data-badge="wallet">💎 Wallet Linked</div>
+        <div class="badge-pill" data-badge="rich">🪙 500 Coins</div>
+        <div class="badge-pill" data-badge="legend">👑 Legend Clear</div>
+        <div class="badge-pill" data-badge="daily7">🎁 7 Dailies</div>
+      </div>
+
+      <!-- Connect Wallet -->
+      <div class="wallet-section">
+        <h3>🔗 Connect Wallet</h3>
+        <div class="wallet-connected" id="wallet-connected">
+          <div class="wc-row">
+            <div class="wc-icon" id="wc-icon">💼</div>
+            <div class="wc-info">
+              <div class="wc-name" id="wc-name">—</div>
+              <div class="wc-addr" id="wc-addr">—</div>
+              <div class="wc-bal" id="wc-bal">—</div>
+            </div>
+            <button class="btn-disconnect" id="btn-disconnect">Disconnect</button>
+          </div>
+        </div>
+        <div class="wallet-grid" id="wallet-grid">
+          <div class="wallet-card" data-wallet="telegram">
+            <span class="w-icon">✈️</span>
+            <div class="w-name">Telegram</div>
+            <div class="w-sub">TON / Wallet</div>
+          </div>
+          <div class="wallet-card" data-wallet="binance">
+            <span class="w-icon">🟡</span>
+            <div class="w-name">Binance</div>
+            <div class="w-sub">Web3 Wallet</div>
+          </div>
+          <div class="wallet-card" data-wallet="trust">
+            <span class="w-icon">🛡️</span>
+            <div class="w-name">Trust Wallet</div>
+            <div class="w-sub">Most Trusted</div>
+          </div>
+          <div class="wallet-card" data-wallet="metamask">
+            <span class="w-icon">🦊</span>
+            <div class="w-name">MetaMask</div>
+            <div class="w-sub">Browser / App</div>
+          </div>
+          <div class="wallet-card" data-wallet="walletconnect">
+            <span class="w-icon">🔗</span>
+            <div class="w-name">WalletConnect</div>
+            <div class="w-sub">Universal</div>
+          </div>
+          <div class="wallet-card" data-wallet="tonkeeper">
+            <span class="w-icon">💎</span>
+            <div class="w-name">Tonkeeper</div>
+            <div class="w-sub">TON Network</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invite -->
+      <div class="invite-card">
+        <div class="inv-icon">📨</div>
+        <div class="inv-body">
+          <h4>Invite Friends</h4>
+          <p>Share code · Both get +30 XP</p>
+        </div>
+        <div class="invite-code" id="invite-code" title="Tap to copy">NEKO-XXXX</div>
+      </div>
+
+      <!-- Full app mirror / references -->
+      <div class="section-label">App Overview</div>
+      <div class="profile-stats-grid" id="profile-mirror" style="padding-top:0">
+        <div class="p-stat"><div class="num" id="pm-active">0</div><div class="lab">Active Tasks</div></div>
+        <div class="p-stat"><div class="num" id="pm-total-m">0</div><div class="lab">Total Missions</div></div>
+        <div class="p-stat"><div class="num" id="pm-shop">0</div><div class="lab">Shop Owned</div></div>
+        <div class="p-stat"><div class="num" id="pm-daily">0</div><div class="lab">Dailies</div></div>
+        <div class="p-stat"><div class="num" id="pm-streak">0</div><div class="lab">Streak</div></div>
+        <div class="p-stat"><div class="num" id="pm-boost">—</div><div class="lab">Boosts</div></div>
+      </div>
+
+      <div class="section-label">Task Breakdown</div>
+      <div class="admin-card" style="margin:0 16px 12px" id="task-breakdown">
+        <div class="row"><span>🌱 Easy done</span><strong id="tb-easy">0</strong></div>
+        <div class="row"><span>⚡ Medium done</span><strong id="tb-med">0</strong></div>
+        <div class="row"><span>💥 Hard done</span><strong id="tb-hard">0</strong></div>
+        <div class="row"><span>👑 Legend done</span><strong id="tb-legend">0</strong></div>
+        <div class="row"><span>📦 Inventory items</span><strong id="tb-owned">0</strong></div>
+        <div class="row"><span>🔗 Wallet</span><strong id="tb-wallet">None</strong></div>
+        <div class="row"><span>🖥️ Quality</span><strong id="tb-quality">1K</strong></div>
+        <div class="row"><span>⚡ FPS target</span><strong id="tb-fps">60</strong></div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-label">Recent Activity</div>
+      <div class="activity-list" id="activity-list">
+        <div class="activity-item">
+          <div class="act-icon">🌟</div>
+          <div class="act-text">Welcome to NEKOVERSE</div>
+          <div class="act-time">Just now</div>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button class="profile-btn" id="btn-edit-profile">✏️ Edit Profile</button>
+        <button class="profile-btn" id="btn-copy-id">📋 Copy Player ID</button>
+        <button class="profile-btn" id="btn-reset-progress">🔄 Reset Progress</button>
+        <button class="profile-btn" id="btn-admin-enter">🔐 Admin Panel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN ===== -->
+  <div class="screen" id="screen-admin">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="avatar-ring">🛡️</div>
+        <div class="greet"><h1>Admin Panel</h1><p>System Control</p></div>
+      </div>
+      <button class="icon-btn" id="btn-admin-back">←</button>
+    </div>
+    <div id="admin-content">
+      <div class="admin-gate" id="admin-gate">
+        <h2>🔐 Admin Access</h2>
+        <p>Enter password to unlock control panel<br><small style="opacity:0.6">Default: nekoadmin</small></p>
+        <input type="password" class="admin-input" id="admin-pass" placeholder="••••••••" maxlength="32">
+        <button class="btn btn-primary" style="max-width:260px;margin:0 auto;display:block" id="admin-login-btn">Unlock</button>
+      </div>
+      <div class="admin-panel" id="admin-panel" style="display:none">
+        <div class="admin-section">
+          <h3>📊 Live Stats</h3>
+          <div class="admin-card">
+            <div class="row"><span>Total Missions</span><strong id="adm-total">0</strong></div>
+            <div class="row"><span>Completed</span><strong id="adm-done">0</strong></div>
+            <div class="row"><span>Player Level</span><strong id="adm-lvl">1</strong></div>
+            <div class="row"><span>Player Coins</span><strong id="adm-coins">0</strong></div>
+            <div class="row"><span>Total XP</span><strong id="adm-xp">0</strong></div>
+            <div class="row"><span>Streak Days</span><strong id="adm-streak">0</strong></div>
+          </div>
+        </div>
+        <div class="admin-section">
+          <h3>⚡ Quick Actions</h3>
+          <div class="admin-card">
+            <div class="admin-actions">
+              <button class="admin-btn ok" id="adm-add-xp">+100 XP</button>
+              <button class="admin-btn ok" id="adm-add-coins">+50 Coins</button>
+              <button class="admin-btn" id="adm-reset-daily">Reset Daily</button>
+              <button class="admin-btn" id="adm-unlock-all">Unlock All Shop</button>
+              <button class="admin-btn danger" id="adm-clear-missions">Clear All Missions</button>
+              <button class="admin-btn danger" id="adm-full-reset">Full Reset</button>
+            </div>
+          </div>
+        </div>
+        <div class="admin-section">
+          <h3>📋 Mission Manager</h3>
+          <div class="admin-card">
+            <div class="admin-actions">
+              <button class="admin-btn ok" id="adm-seed-missions">Re-seed 48 Missions</button>
+              <button class="admin-btn" id="adm-add-custom">+ Custom Mission</button>
+            </div>
+          </div>
+          <div id="adm-mission-list"></div>
+        </div>
+        <div class="admin-section">
+          <h3>🔧 System</h3>
+          <div class="admin-card">
+            <div class="row"><span>Audio Context</span><strong id="adm-audio">—</strong></div>
+            <div class="row"><span>Particles</span><strong id="adm-particles">ON</strong></div>
+            <div class="row"><span>Storage Used</span><strong id="adm-storage">—</strong></div>
+            <div class="admin-actions" style="margin-top:12px">
+              <button class="admin-btn" id="adm-export">Export Save</button>
+              <button class="admin-btn" id="adm-import">Import Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS (overlay style via modal mostly) ===== -->
+  <div class="screen" id="screen-settings">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="avatar-ring">⚙️</div>
+        <div class="greet"><h1>Settings</h1><p>Tune your experience</p></div>
+      </div>
+    </div>
+    <div class="settings-list">
+      <div class="set-row"><span>🔊 Sound Effects</span><div class="toggle on" id="tog-sfx"></div></div>
+      <div class="set-row"><span>🎵 Background Music</span><div class="toggle" id="tog-music"></div></div>
+      <div class="set-row"><span>✨ Energy Particles</span><div class="toggle on" id="tog-particles"></div></div>
+      <div class="set-row"><span>🌟 Starfield</span><div class="toggle on" id="tog-stars"></div></div>
+      <div class="set-row"><span>💫 Glow Effects</span><div class="toggle on" id="tog-glow"></div></div>
+      <div class="set-row"><span>📳 Haptic Feedback</span><div class="toggle" id="tog-haptic"></div></div>
+      <div class="set-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <span>🖥️ Render Quality</span>
+        <div class="select-row" id="quality-row" style="width:100%">
+          <button class="sel-btn active" data-q="1k">1K</button>
+          <button class="sel-btn" data-q="2k">2K</button>
+          <button class="sel-btn" data-q="4k">4K</button>
+          <button class="sel-btn" data-q="8k">8K</button>
+        </div>
+        <small style="color:var(--text-mute);font-size:0.68rem">Canvas DPR + particle density (GPU heavy on 8K)</small>
+      </div>
+      <div class="set-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <span>⚡ Target FPS</span>
+        <div class="select-row" id="fps-row" style="width:100%">
+          <button class="sel-btn" data-fps="30">30</button>
+          <button class="sel-btn active" data-fps="60">60</button>
+          <button class="sel-btn" data-fps="120">120</button>
+          <button class="sel-btn" data-fps="0">Unlimited</button>
+        </div>
+        <small style="color:var(--text-mute);font-size:0.68rem">Capped via frame pacing · device must support</small>
+      </div>
+      <div class="set-row">
+        <span>📊 Live FPS <strong id="fps-live" style="color:var(--cyan)">—</strong></span>
+      </div>
+      <div style="margin-top:28px;text-align:center;color:var(--text-mute);font-size:0.78rem;line-height:1.6">
+        NEKOVERSE — Anime Energy OS<br>
+        Premium Dark Edition v2.1 · 2K/4K/8K · 120 FPS<br>
+        Built for maximum immersion ⚡
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-item active" data-screen="home"><span class="nav-icon">🏠</span>Home</button>
+  <button class="nav-item" data-screen="shop"><span class="nav-icon">🛒</span>Shop</button>
+  <button class="nav-item" data-screen="profile"><span class="nav-icon">👤</span>Profile</button>
+  <button class="nav-item" data-screen="settings"><span class="nav-icon">⚙️</span>Settings</button>
+</nav>
+
+<!-- FAB -->
+<button class="fab" id="fab" title="New Mission">＋</button>
+
+<!-- ADD / EDIT MISSION MODAL -->
+<div class="modal-bg" id="modal-mission">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="modal-m-title">✨ New Mission</div>
+    <div class="form-g">
+      <label>Mission Title</label>
+      <input class="form-inp" id="m-title-inp" placeholder="What is your next quest? 🚀" maxlength="100">
+    </div>
+    <div class="form-g">
+      <label>Category / Tag</label>
+      <input class="form-inp" id="m-tag-inp" placeholder="Anime, Study, Fitness..." maxlength="24">
+    </div>
+    <div class="form-g">
+      <label>Difficulty</label>
+      <div class="select-row" id="diff-row">
+        <button class="sel-btn" data-v="easy">🌱 Easy</button>
+        <button class="sel-btn active" data-v="medium">⚡ Med</button>
+        <button class="sel-btn" data-v="hard">💥 Hard</button>
+        <button class="sel-btn" data-v="legend">👑 Legend</button>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" id="m-cancel">Cancel</button>
+      <button class="btn btn-primary" id="m-save">Save ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-bg" id="modal-profile">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">✏️ Edit Profile</div>
+    <div class="form-g">
+      <label>Display Name</label>
+      <input class="form-inp" id="p-name-inp" placeholder="Your name" maxlength="24">
+    </div>
+    <div class="form-g">
+      <label>Avatar Emoji</label>
+      <div class="select-row" id="avatar-row" style="flex-wrap:wrap;gap:8px">
+        <button class="sel-btn" data-v="🌸" style="flex:0;min-width:48px;font-size:1.3rem">🌸</button>
+        <button class="sel-btn" data-v="⚡" style="flex:0;min-width:48px;font-size:1.3rem">⚡</button>
+        <button class="sel-btn" data-v="🦊" style="flex:0;min-width:48px;font-size:1.3rem">🦊</button>
+        <button class="sel-btn" data-v="🐺" style="flex:0;min-width:48px;font-size:1.3rem">🐺</button>
+        <button class="sel-btn" data-v="🐱" style="flex:0;min-width:48px;font-size:1.3rem">🐱</button>
+        <button class="sel-btn" data-v="🐉" style="flex:0;min-width:48px;font-size:1.3rem">🐉</button>
+        <button class="sel-btn" data-v="🌟" style="flex:0;min-width:48px;font-size:1.3rem">🌟</button>
+        <button class="sel-btn" data-v="🔥" style="flex:0;min-width:48px;font-size:1.3rem">🔥</button>
+        <button class="sel-btn" data-v="💎" style="flex:0;min-width:48px;font-size:1.3rem">💎</button>
+        <button class="sel-btn" data-v="🎮" style="flex:0;min-width:48px;font-size:1.3rem">🎮</button>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" id="p-cancel">Cancel</button>
+      <button class="btn btn-primary" id="p-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- REWARD OVERLAY -->
+<div class="reward-overlay" id="reward-overlay">
+  <div class="reward-box">
+    <span class="reward-emoji" id="reward-emoji">🎉</span>
+    <h2 id="reward-title">Reward Claimed!</h2>
+    <p id="reward-sub">You earned energy</p>
+    <div class="reward-vals">
+      <span id="reward-xp">+0 XP</span>
+      <span id="reward-coin">+0 🪙</span>
+    </div>
+    <button class="btn btn-primary" style="margin-top:24px;min-width:140px" id="reward-ok">Awesome!</button>
+  </div>
+</div>
+
+<!-- LEVEL UP -->
+<div class="levelup-flash" id="levelup-flash">
+  <div class="levelup-content">
+    <span class="big">⬆️</span>
+    <h1>LEVEL UP!</h1>
+    <p style="color:var(--text-dim);margin-top:8px;font-size:1.1rem" id="levelup-text">You reached Level 2</p>
+    <button class="btn btn-gold" style="margin-top:24px;min-width:140px" id="levelup-ok">Continue</button>
+  </div>
+</div>
+
+<!-- WALLET CONNECT MODAL -->
+<div class="modal-bg" id="modal-wallet">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🔗 Connect Wallet</div>
+    <p style="text-align:center;color:var(--text-dim);font-size:0.82rem;margin-bottom:16px">
+      Choose a trusted wallet. Demo mode — no real chain TX.
+    </p>
+    <div class="wallet-modal-list" id="wallet-modal-list">
+      <div class="wallet-option" data-wallet="telegram">
+        <div class="wo-icon" style="background:linear-gradient(135deg,#2AABEE,#229ED9)">✈️</div>
+        <div class="wo-body">
+          <div class="wo-name">Telegram Wallet</div>
+          <div class="wo-desc">TON Space · Official Telegram</div>
+        </div>
+        <span class="wo-badge">Popular</span>
+      </div>
+      <div class="wallet-option" data-wallet="binance">
+        <div class="wo-icon" style="background:linear-gradient(135deg,#F0B90B,#F8D12F)">🟡</div>
+        <div class="wo-body">
+          <div class="wo-name">Binance Web3 Wallet</div>
+          <div class="wo-desc">Binance trusted · Multi-chain</div>
+        </div>
+        <span class="wo-badge">Trusted</span>
+      </div>
+      <div class="wallet-option" data-wallet="trust">
+        <div class="wo-icon" style="background:linear-gradient(135deg,#3375BB,#0500FF)">🛡️</div>
+        <div class="wo-body">
+          <div class="wo-name">Trust Wallet</div>
+          <div class="wo-desc">Binance-backed · 10M+ users</div>
+        </div>
+        <span class="wo-badge">Secure</span>
+      </div>
+      <div class="wallet-option" data-wallet="metamask">
+        <div class="wo-icon" style="background:linear-gradient(135deg,#E2761B,#F6851B)">🦊</div>
+        <div class="wo-body">
+          <div class="wo-name">MetaMask</div>
+          <div class="wo-desc">Ethereum · Browser extension</div>
+        </div>
+      </div>
+      <div class="wallet-option" data-wallet="walletconnect">
+        <div class="wo-icon" style="background:linear-gradient(135deg,#3B99FC,#1F6FEB)">🔗</div>
+        <div class="wo-body">
+          <div class="wo-name">WalletConnect</div>
+          <div class="wo-desc">Connect any mobile wallet</div>
+        </div>
+      </div>
+      <div class="wallet-option" data-wallet="tonkeeper">
+        <div class="wo-icon" style="background:linear-gradient(135deg,#0098EA,#45AEF5)">💎</div>
+        <div class="wo-body">
+          <div class="wo-name">Tonkeeper</div>
+          <div class="wo-desc">TON Network · Fast & light</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:8px" id="wallet-modal-close">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================================
+   NEKOVERSE — Anime Energy OS
+   Premium full client • Admin • Audio • 48 Missions • Particles
+   ============================================================================ */
+(function () {
+  "use strict";
+
+  const STORAGE = "nekoverse_save_v2";
+  const ADMIN_PASS = "nekoadmin";
+  const XP_PER_LEVEL = (lv) => 80 + lv * 40;
+
+  const TITLES = [
+    "Rookie Explorer", "Energy Novice", "Star Wanderer", "Neon Runner",
+    "Void Surfer", "Plasma Knight", "Galaxy Pilot", "Cosmic Neko",
+    "Anime Legend", "Energy Overlord", "Nekoverse Master", "Eternal Spark"
+  ];
+
+  const DEFAULT_MISSIONS = [
+    { t: "Watch one anime episode 🎌", tag: "Anime", d: "easy", xp: 20, coin: 10 },
+    { t: "Finish a coding kata", tag: "Dev", d: "medium", xp: 40, coin: 20 },
+    { t: "Practice Japanese 15 min 🇯🇵", tag: "Study", d: "medium", xp: 35, coin: 15 },
+    { t: "Drink 8 glasses of water 💧", tag: "Health", d: "easy", xp: 15, coin: 8 },
+    { t: "Do 20 push-ups", tag: "Fitness", d: "medium", xp: 30, coin: 12 },
+    { t: "Read 20 pages of a book 📖", tag: "Study", d: "easy", xp: 25, coin: 10 },
+    { t: "Meditate 10 minutes 🧘", tag: "Mind", d: "easy", xp: 20, coin: 10 },
+    { t: "Write in journal", tag: "Mind", d: "easy", xp: 18, coin: 8 },
+    { t: "Complete a LeetCode easy", tag: "Dev", d: "medium", xp: 45, coin: 22 },
+    { t: "Draw or sketch something 🎨", tag: "Art", d: "easy", xp: 22, coin: 10 },
+    { t: "Learn 10 new words", tag: "Study", d: "easy", xp: 20, coin: 10 },
+    { t: "Go for a 20-min walk 🚶", tag: "Health", d: "easy", xp: 25, coin: 12 },
+    { t: "Cook a healthy meal 🥗", tag: "Health", d: "medium", xp: 35, coin: 15 },
+    { t: "Clean your desk / room", tag: "Life", d: "easy", xp: 18, coin: 8 },
+    { t: "No social media for 2 hours", tag: "Focus", d: "medium", xp: 40, coin: 18 },
+    { t: "Finish a side-project task", tag: "Dev", d: "hard", xp: 60, coin: 30 },
+    { t: "Watch a documentary", tag: "Study", d: "easy", xp: 22, coin: 10 },
+    { t: "Practice an instrument 🎸", tag: "Art", d: "medium", xp: 35, coin: 15 },
+    { t: "Call a friend / family", tag: "Social", d: "easy", xp: 15, coin: 8 },
+    { t: "Plan tomorrow's goals", tag: "Focus", d: "easy", xp: 15, coin: 8 },
+    { t: "Complete a hard workout 💪", tag: "Fitness", d: "hard", xp: 55, coin: 25 },
+    { t: "Ship a PR / commit code", tag: "Dev", d: "hard", xp: 70, coin: 35 },
+    { t: "Finish an anime season 🎌", tag: "Anime", d: "hard", xp: 80, coin: 40 },
+    { t: "Write 500 words", tag: "Art", d: "medium", xp: 40, coin: 18 },
+    { t: "Solve a puzzle / riddle", tag: "Mind", d: "easy", xp: 20, coin: 10 },
+    { t: "Stretch for 10 minutes", tag: "Health", d: "easy", xp: 12, coin: 6 },
+    { t: "Review flashcards (Anki)", tag: "Study", d: "easy", xp: 20, coin: 10 },
+    { t: "Build a small UI component", tag: "Dev", d: "medium", xp: 45, coin: 20 },
+    { t: "Listen to a podcast episode", tag: "Study", d: "easy", xp: 18, coin: 8 },
+    { t: "Take a cold shower 🧊", tag: "Health", d: "medium", xp: 30, coin: 15 },
+    { t: "Organize digital files", tag: "Life", d: "medium", xp: 30, coin: 12 },
+    { t: "Learn a new CSS trick", tag: "Dev", d: "medium", xp: 35, coin: 15 },
+    { t: "Watch an anime opening analysis", tag: "Anime", d: "easy", xp: 15, coin: 8 },
+    { t: "Do a full body stretch routine", tag: "Fitness", d: "easy", xp: 20, coin: 10 },
+    { t: "Write a thank-you note", tag: "Social", d: "easy", xp: 15, coin: 8 },
+    { t: "Complete a medium coding challenge", tag: "Dev", d: "hard", xp: 65, coin: 30 },
+    { t: "Fast from junk food today", tag: "Health", d: "medium", xp: 40, coin: 18 },
+    { t: "Read technical docs 30 min", tag: "Study", d: "medium", xp: 40, coin: 18 },
+    { t: "Create a moodboard / playlist", tag: "Art", d: "easy", xp: 20, coin: 10 },
+    { t: "Wake up before 7 AM", tag: "Life", d: "hard", xp: 50, coin: 25 },
+    { t: "Finish a side quest in a game", tag: "Fun", d: "easy", xp: 15, coin: 10 },
+    { t: "Deploy something to production", tag: "Dev", d: "legend", xp: 120, coin: 60 },
+    { t: "Complete a full anime marathon (3+ ep)", tag: "Anime", d: "legend", xp: 100, coin: 50 },
+    { t: "Run 5K or equivalent cardio", tag: "Fitness", d: "legend", xp: 110, coin: 55 },
+    { t: "Ship a personal project MVP", tag: "Dev", d: "legend", xp: 150, coin: 80 },
+    { t: "Master a difficult skill session", tag: "Study", d: "legend", xp: 100, coin: 50 },
+    { t: "Help someone solve a problem", tag: "Social", d: "medium", xp: 35, coin: 15 },
+    { t: "Digital detox evening (no screens)", tag: "Mind", d: "hard", xp: 55, coin: 25 },
+    { t: "Review your weekly goals 📅", tag: "Focus", d: "easy", xp: 18, coin: 8 },
+    { t: "Learn 5 keyboard shortcuts", tag: "Dev", d: "easy", xp: 15, coin: 8 },
+    { t: "Watch a Ghibli film 🍃", tag: "Anime", d: "medium", xp: 40, coin: 18 },
+    { t: "Do 50 jumping jacks", tag: "Fitness", d: "easy", xp: 18, coin: 8 },
+    { t: "Write a short poem or haiku", tag: "Art", d: "easy", xp: 20, coin: 10 },
+    { t: "Backup important files 💾", tag: "Life", d: "medium", xp: 30, coin: 12 },
+    { t: "Try a new recipe 🍜", tag: "Health", d: "medium", xp: 35, coin: 15 },
+    { t: "Complete 3 pomodoro sessions ⏱", tag: "Focus", d: "medium", xp: 45, coin: 20 },
+    { t: "Debug a tricky bug", tag: "Dev", d: "hard", xp: 70, coin: 32 },
+    { t: "Memorize one anime OP lyrics", tag: "Anime", d: "easy", xp: 15, coin: 8 },
+    { t: "Practice public speaking 2 min", tag: "Social", d: "medium", xp: 35, coin: 15 },
+    { t: "Declutter phone apps", tag: "Life", d: "easy", xp: 15, coin: 8 },
+    { t: "Read a research paper abstract", tag: "Study", d: "medium", xp: 30, coin: 12 },
+    { t: "Yoga or mobility 15 min 🧘", tag: "Fitness", d: "medium", xp: 35, coin: 15 },
+    { t: "Design a logo / icon", tag: "Art", d: "hard", xp: 55, coin: 25 },
+    { t: "Write unit tests for a function", tag: "Dev", d: "hard", xp: 60, coin: 28 },
+    { t: "No caffeine after 2 PM", tag: "Health", d: "medium", xp: 30, coin: 12 },
+    { t: "Teach someone a concept", tag: "Social", d: "medium", xp: 40, coin: 18 },
+    { t: "Finish a manga volume 📚", tag: "Anime", d: "medium", xp: 35, coin: 15 },
+    { t: "Build a CLI tool", tag: "Dev", d: "legend", xp: 130, coin: 65 },
+    { t: "Sleep 8 hours tonight 😴", tag: "Health", d: "hard", xp: 50, coin: 22 },
+    { t: "Contribute to open source", tag: "Dev", d: "legend", xp: 140, coin: 70 },
+    { t: "Host a study session", tag: "Study", d: "hard", xp: 55, coin: 25 },
+    { t: "Create an anime AMV concept", tag: "Art", d: "hard", xp: 60, coin: 28 },
+    { t: "Track spending for one day 💰", tag: "Life", d: "easy", xp: 18, coin: 8 },
+    { t: "Plank for 2 minutes", tag: "Fitness", d: "medium", xp: 30, coin: 12 },
+    { t: "Refactor messy code", tag: "Dev", d: "hard", xp: 65, coin: 30 },
+    { t: "Watch a TED talk", tag: "Study", d: "easy", xp: 20, coin: 10 },
+    { t: "Smile at 5 strangers", tag: "Social", d: "easy", xp: 12, coin: 6 },
+    { t: "Deep clean keyboard / desk", tag: "Life", d: "easy", xp: 15, coin: 8 },
+    { t: "Finish a hard puzzle game level", tag: "Fun", d: "medium", xp: 35, coin: 15 },
+    { t: "Write a blog post draft", tag: "Art", d: "hard", xp: 60, coin: 28 },
+    { t: "Learn basic SQL queries", tag: "Study", d: "medium", xp: 40, coin: 18 },
+    { t: "Do a charity / help task", tag: "Social", d: "medium", xp: 40, coin: 18 },
+    { t: "Speedrun an easy anime ep notes", tag: "Anime", d: "easy", xp: 18, coin: 8 },
+    { t: "100 burpees challenge", tag: "Fitness", d: "legend", xp: 120, coin: 55 },
+    { t: "Ship a design system token", tag: "Dev", d: "hard", xp: 70, coin: 32 },
+    { t: "Morning sunlight 10 min ☀️", tag: "Health", d: "easy", xp: 15, coin: 8 },
+    { t: "Build a full REST endpoint", tag: "Dev", d: "hard", xp: 75, coin: 35 },
+    { t: "Finish a light novel chapter", tag: "Anime", d: "easy", xp: 18, coin: 8 },
+    { t: "Water plants / care for pet 🌱", tag: "Life", d: "easy", xp: 12, coin: 6 },
+    { t: "Practice breathing 4-7-8", tag: "Mind", d: "easy", xp: 15, coin: 8 },
+    { t: "Create a weekly meal plan", tag: "Health", d: "medium", xp: 30, coin: 12 },
+    { t: "Win a ranked match / high score", tag: "Fun", d: "hard", xp: 50, coin: 22 },
+    { t: "Present your project to someone", tag: "Social", d: "hard", xp: 55, coin: 25 },
+    { t: "Optimize a slow query / page", tag: "Dev", d: "legend", xp: 125, coin: 60 },
+    { t: "Watch an anime with friends 🎌", tag: "Anime", d: "medium", xp: 35, coin: 15 },
+    { t: "Complete a full digital detox day", tag: "Mind", d: "legend", xp: 110, coin: 50 }
+  ];
+
+  const SHOP_ITEMS = [
+    { id: "boost_xp", name: "XP Boost x1.5", desc: "Next 5 missions give +50% XP", icon: "⚡", price: 80, color: "linear-gradient(135deg,#22d3ee,#3b82f6)" },
+    { id: "boost_coin", name: "Coin Magnet", desc: "+20% coins for 10 missions", icon: "🧲", price: 60, color: "linear-gradient(135deg,#fbbf24,#f59e0b)" },
+    { id: "avatar_fox", name: "Fox Spirit Avatar", desc: "Unlock 🦊 avatar", icon: "🦊", price: 40, color: "linear-gradient(135deg,#f97316,#ef4444)" },
+    { id: "avatar_dragon", name: "Dragon Avatar", desc: "Unlock 🐉 avatar", icon: "🐉", price: 100, color: "linear-gradient(135deg,#a855f7,#22d3ee)" },
+    { id: "title_neon", name: "Title: Neon Runner", desc: "Special display title", icon: "🏃", price: 70, color: "linear-gradient(135deg,#ff2d95,#a855f7)" },
+    { id: "energy_core", name: "Energy Core", desc: "Instant +200 XP", icon: "💎", price: 150, color: "linear-gradient(135deg,#22d3ee,#a855f7)" },
+    { id: "streak_shield", name: "Streak Shield", desc: "Protect streak once", icon: "🛡️", price: 90, color: "linear-gradient(135deg,#34d399,#22d3ee)" },
+    { id: "particle_premium", name: "Premium Particles", desc: "Richer energy effects", icon: "✨", price: 50, color: "linear-gradient(135deg,#ff2d95,#fbbf24)" }
+  ];
+
+  // -------------------- STATE --------------------
+  let state = {
+    name: "Neko Pilot",
+    emoji: "🌸",
+    level: 1,
+    xp: 0,
+    totalXp: 0,
+    coins: 0,
+    streak: 0,
+    lastDaily: null,
+    dailyCount: 0,
+    missions: [],
+    owned: [],
+    filter: "all",
+    settings: { sfx: true, music: false, particles: true, stars: true, glow: true, haptic: false, quality: "1k", fps: 60 },
+    adminUnlocked: false,
+    xpBoostLeft: 0,
+    coinBoostLeft: 0,
+    wallet: null,
+    playerId: null,
+    inviteCode: null,
+    activity: []
+  };
+
+  const WALLET_META = {
+    telegram: { name: "Telegram Wallet", icon: "✈️", chain: "TON", prefix: "UQ" },
+    binance: { name: "Binance Web3", icon: "🟡", chain: "BSC", prefix: "0x" },
+    trust: { name: "Trust Wallet", icon: "🛡️", chain: "Multi", prefix: "0x" },
+    metamask: { name: "MetaMask", icon: "🦊", chain: "ETH", prefix: "0x" },
+    walletconnect: { name: "WalletConnect", icon: "🔗", chain: "Multi", prefix: "0x" },
+    tonkeeper: { name: "Tonkeeper", icon: "💎", chain: "TON", prefix: "EQ" }
+  };
+
+  let selectedDiff = "medium";
+  let editingMissionId = null;
+  let selectedAvatar = "🌸";
+  let audioCtx = null;
+  let musicNodes = null;
+  let musicTimer = null;
+  let toastTimer = null;
+  let stars = [];
+  let particles = [];
+  let animFrame = null;
+  let starsOn = true;
+  let particlesOn = true;
+
+  // -------------------- DOM --------------------
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+
+  // -------------------- AUDIO ENGINE --------------------
+  function ensureAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        return null;
+      }
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(function () {});
+    }
+    return audioCtx;
+  }
+
+  function tone(freq, dur, type = "sine", vol = 0.12, delay = 0) {
+    if (!state.settings.sfx) return;
+    const ctx = ensureAudio();
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function sfxClick() {
+    tone(920, 0.06, "square", 0.06);
+    tone(1400, 0.05, "sine", 0.05, 0.04);
+  }
+  function sfxSuccess() {
+    tone(523, 0.1, "sine", 0.12);
+    tone(659, 0.1, "sine", 0.12, 0.09);
+    tone(784, 0.14, "sine", 0.14, 0.18);
+    tone(1046, 0.18, "triangle", 0.1, 0.28);
+  }
+  function sfxDelete() {
+    tone(380, 0.1, "sawtooth", 0.09);
+    tone(220, 0.16, "sawtooth", 0.07, 0.08);
+  }
+  function sfxAdd() {
+    tone(600, 0.07, "triangle", 0.1);
+    tone(900, 0.09, "triangle", 0.11, 0.06);
+    tone(1200, 0.12, "sine", 0.09, 0.13);
+  }
+  function sfxReward() {
+    [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.15, "sine", 0.1, i * 0.08));
+  }
+  function sfxLevelUp() {
+    [392, 523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.2, "triangle", 0.12, i * 0.1));
+  }
+  function sfxWhoosh() {
+    tone(180, 0.22, "sawtooth", 0.04);
+  }
+  function sfxError() {
+    tone(180, 0.2, "sawtooth", 0.1);
+  }
+
+  // Background ambient synth — continuous pad + arpeggio (works after user gesture)
+  function startMusic() {
+    stopMusic();
+    if (!state.settings.music) return;
+    const ctx = ensureAudio();
+    if (!ctx) return;
+
+    const master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+    // fade in
+    master.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.8);
+
+    // Drone pad (low)
+    const pad1 = ctx.createOscillator();
+    const pad1g = ctx.createGain();
+    pad1.type = "sine";
+    pad1.frequency.value = 110;
+    pad1g.gain.value = 0.35;
+    pad1.connect(pad1g);
+    pad1g.connect(master);
+    pad1.start();
+
+    const pad2 = ctx.createOscillator();
+    const pad2g = ctx.createGain();
+    pad2.type = "triangle";
+    pad2.frequency.value = 164.81;
+    pad2g.gain.value = 0.18;
+    pad2.connect(pad2g);
+    pad2g.connect(master);
+    pad2.start();
+
+    // Soft high shimmer
+    const shim = ctx.createOscillator();
+    const shimg = ctx.createGain();
+    shim.type = "sine";
+    shim.frequency.value = 659.25;
+    shimg.gain.value = 0.04;
+    shim.connect(shimg);
+    shimg.connect(master);
+    shim.start();
+
+    musicNodes = { master, pad1, pad2, shim, gains: [pad1g, pad2g, shimg] };
+
+    // Arpeggio loop on top
+    const scale = [261.63, 311.13, 349.23, 392.0, 466.16, 523.25, 466.16, 392.0, 349.23, 311.13];
+    let i = 0;
+    musicTimer = setInterval(() => {
+      if (!state.settings.music || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = scale[i % scale.length];
+        g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+        osc.connect(g);
+        g.connect(master);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.55);
+        i++;
+      } catch (e) { /* ignore */ }
+    }, 520);
+  }
+
+  function stopMusic() {
+    if (musicTimer) {
+      clearInterval(musicTimer);
+      musicTimer = null;
+    }
+    if (musicNodes) {
+      try {
+        const ctx = audioCtx;
+        if (ctx && musicNodes.master) {
+          musicNodes.master.gain.cancelScheduledValues(ctx.currentTime);
+          musicNodes.master.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        }
+        setTimeout(() => {
+          try {
+            if (musicNodes) {
+              musicNodes.pad1.stop();
+              musicNodes.pad2.stop();
+              musicNodes.shim.stop();
+            }
+          } catch (e) {}
+          musicNodes = null;
+        }, 450);
+      } catch (e) {
+        musicNodes = null;
+      }
+    }
+  }
+
+  // -------------------- PARTICLES & STARS --------------------
+  const starCanvas = $("#star-canvas");
+  const energyCanvas = $("#energy-canvas");
+  const sCtx = starCanvas.getContext("2d");
+  const eCtx = energyCanvas.getContext("2d");
+
+  const QUALITY_DPR = { "1k": 1, "2k": 1.5, "4k": 2, "8k": 3 };
+  const QUALITY_STARS = { "1k": 80, "2k": 140, "4k": 220, "8k": 360 };
+  const QUALITY_PARTICLE_MULT = { "1k": 1, "2k": 1.4, "4k": 2, "8k": 3 };
+
+  let targetFps = 60;
+  let lastFrameTime = 0;
+  let fpsFrames = 0;
+  let fpsLastSample = 0;
+  let displayFps = 0;
+  let renderScale = 1;
+
+  function getQuality() {
+    return state.settings.quality || "1k";
+  }
+
+  function resizeCanvases() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const q = getQuality();
+    const dpr = Math.min(window.devicePixelRatio || 1, QUALITY_DPR[q] || 1);
+    renderScale = dpr;
+    starCanvas.width = energyCanvas.width = Math.floor(w * dpr);
+    starCanvas.height = energyCanvas.height = Math.floor(h * dpr);
+    starCanvas.style.width = energyCanvas.style.width = w + "px";
+    starCanvas.style.height = energyCanvas.style.height = h + "px";
+    sCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    eCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function initStars() {
+    stars = [];
+    const q = getQuality();
+    const count = QUALITY_STARS[q] || 80;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.6 + 0.3,
+        a: Math.random() * 0.7 + 0.2,
+        s: Math.random() * 0.4 + 0.1,
+        tw: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function applyQuality(q) {
+    state.settings.quality = q;
+    $$("#quality-row .sel-btn").forEach((b) => b.classList.toggle("active", b.dataset.q === q));
+    resizeCanvases();
+    initStars();
+    save();
+    showToast("Quality: " + q.toUpperCase(), "🖥️");
+  }
+
+  function applyFps(fps) {
+    targetFps = parseInt(fps, 10) || 0;
+    state.settings.fps = targetFps;
+    $$("#fps-row .sel-btn").forEach((b) => b.classList.toggle("active", String(b.dataset.fps) === String(fps)));
+    save();
+    showToast(targetFps === 0 ? "FPS: Unlimited" : "Target FPS: " + targetFps, "⚡");
+  }
+
+  function burst(x, y, n = 20, hue = 300) {
+    if (!particlesOn) return;
+    const mult = QUALITY_PARTICLE_MULT[getQuality()] || 1;
+    const count = Math.floor(n * mult);
+    for (let i = 0; i < count; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = 2 + Math.random() * 6;
+      particles.push({
+        x, y,
+        vx: Math.cos(ang) * sp,
+        vy: Math.sin(ang) * sp,
+        life: 1,
+        decay: 0.012 + Math.random() * 0.025,
+        size: 2 + Math.random() * 4,
+        color: `hsla(${hue + Math.random() * 60}, 90%, 65%, 1)`
+      });
+    }
+  }
+
+  function energyRing(x, y) {
+    const el = document.createElement("div");
+    el.className = "energy-ring";
+    el.style.left = (x - 24) + "px";
+    el.style.top = (y - 24) + "px";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 600);
+  }
+
+  function loop(now) {
+    animFrame = requestAnimationFrame(loop);
+    if (!now) now = performance.now();
+
+    // FPS cap (0 = unlimited)
+    if (targetFps > 0) {
+      const minDelta = 1000 / targetFps;
+      if (now - lastFrameTime < minDelta - 0.5) return;
+      lastFrameTime = now;
+    } else {
+      lastFrameTime = now;
+    }
+
+    // Live FPS counter
+    fpsFrames++;
+    if (now - fpsLastSample >= 1000) {
+      displayFps = fpsFrames;
+      fpsFrames = 0;
+      fpsLastSample = now;
+      const el = $("#fps-live");
+      if (el) el.textContent = displayFps + " FPS";
+    }
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    // stars (draw in CSS pixel space via setTransform)
+    sCtx.clearRect(0, 0, w, h);
+    if (starsOn) {
+      for (const st of stars) {
+        st.tw += 0.03;
+        const alpha = st.a * (0.6 + 0.4 * Math.sin(st.tw));
+        sCtx.beginPath();
+        sCtx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        sCtx.fillStyle = `rgba(200, 220, 255, ${alpha})`;
+        sCtx.fill();
+        st.y -= st.s;
+        if (st.y < -5) {
+          st.y = h + 5;
+          st.x = Math.random() * w;
+        }
+      }
+    }
+    // energy particles
+    eCtx.clearRect(0, 0, w, h);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.04;
+      p.life -= p.decay;
+      if (p.life <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
+      eCtx.beginPath();
+      eCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      eCtx.fillStyle = p.color;
+      eCtx.globalAlpha = p.life;
+      eCtx.fill();
+      eCtx.globalAlpha = 1;
+    }
+    // ambient rise — denser at higher quality
+    const spawnChance = 0.04 * (QUALITY_PARTICLE_MULT[getQuality()] || 1);
+    if (particlesOn && Math.random() < spawnChance) {
+      particles.push({
+        x: Math.random() * w,
+        y: h + 8,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -1 - Math.random() * 1.4,
+        life: 1,
+        decay: 0.003 + Math.random() * 0.004,
+        size: 1.5 + Math.random() * 2.5,
+        color: `hsla(${260 + Math.random() * 80}, 80%, 70%, 0.7)`
+      });
+    }
+  }
+
+  // -------------------- PERSISTENCE --------------------
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE);
+      if (raw) {
+        const data = JSON.parse(raw);
+        Object.assign(state, data);
+        if (!state.missions || !state.missions.length) seedMissions();
+      } else {
+        seedMissions();
+      }
+    } catch {
+      seedMissions();
+    }
+    if (!state.playerId) {
+      state.playerId = "NK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+    }
+    if (!state.inviteCode) {
+      state.inviteCode = "NEKO-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+    }
+    if (!state.activity) state.activity = [];
+    if (!state.dailyCount) state.dailyCount = 0;
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE, JSON.stringify(state));
+  }
+
+  function seedMissions() {
+    state.missions = DEFAULT_MISSIONS.map((m, i) => ({
+      id: "m" + i + "_" + Date.now().toString(36).slice(-4),
+      title: m.t,
+      tag: m.tag,
+      difficulty: m.d,
+      xp: m.xp,
+      coin: m.coin,
+      done: false,
+      created: Date.now() - i * 1000
+    }));
+  }
+
+  // -------------------- XP / LEVEL --------------------
+  function addXp(amount) {
+    if (state.xpBoostLeft > 0) {
+      amount = Math.floor(amount * 1.5);
+      state.xpBoostLeft--;
+    }
+    state.xp += amount;
+    state.totalXp += amount;
+    let leveled = false;
+    while (state.xp >= XP_PER_LEVEL(state.level)) {
+      state.xp -= XP_PER_LEVEL(state.level);
+      state.level++;
+      leveled = true;
+    }
+    if (leveled) {
+      showLevelUp();
+      sfxLevelUp();
+      burst(window.innerWidth / 2, window.innerHeight / 2, 40, 45);
+    }
+    updateHeroUI();
+    save();
+  }
+
+  function addCoins(amount) {
+    if (state.coinBoostLeft > 0) {
+      amount = Math.floor(amount * 1.2);
+      state.coinBoostLeft--;
+    }
+    state.coins += amount;
+    updateHeroUI();
+    save();
+  }
+
+  function titleForLevel(lv) {
+    return TITLES[Math.min(lv - 1, TITLES.length - 1)];
+  }
+
+  // -------------------- UI UPDATE --------------------
+  function updateHeroUI() {
+    $("#hero-name").textContent = state.name;
+    $("#hero-emoji").textContent = state.emoji;
+    $("#top-avatar").textContent = state.emoji;
+    $("#hero-lvl").textContent = "Lv." + state.level;
+    $("#hero-title").textContent = titleForLevel(state.level);
+    const need = XP_PER_LEVEL(state.level);
+    const pct = Math.min(100, (state.xp / need) * 100);
+    $("#xp-fill").style.width = pct + "%";
+    $("#xp-cur").textContent = state.xp + " XP";
+    $("#xp-next").textContent = need + " XP";
+    $("#stat-coins").textContent = state.coins;
+    $("#stat-done").textContent = state.missions.filter((m) => m.done).length;
+    $("#stat-streak").textContent = state.streak;
+    // profile
+    $("#profile-emoji").textContent = state.emoji;
+    $("#profile-name").textContent = state.name;
+    $("#profile-title").textContent = titleForLevel(state.level);
+    $("#p-level").textContent = state.level;
+    $("#p-xp").textContent = state.totalXp;
+    $("#p-coins").textContent = state.coins;
+    $("#p-missions").textContent = state.missions.filter((m) => m.done).length;
+    // daily
+    const today = new Date().toDateString();
+    const claimed = state.lastDaily === today;
+    $("#daily-banner").classList.toggle("claimed", claimed);
+    $("#daily-claim-btn").textContent = claimed ? "DONE" : "CLAIM";
+    $("#daily-desc").textContent = claimed ? "Come back tomorrow!" : "Claim +50 XP & +25 Coins";
+
+    // invite
+    const inv = $("#invite-code");
+    if (inv) inv.textContent = state.inviteCode || "NEKO-XXXX";
+
+    // profile mirror — everything from the app
+    const doneList = state.missions.filter((m) => m.done);
+    const activeList = state.missions.filter((m) => !m.done);
+    const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+    set("#pm-active", activeList.length);
+    set("#pm-total-m", state.missions.length);
+    set("#pm-shop", (state.owned || []).length);
+    set("#pm-daily", state.dailyCount || 0);
+    set("#pm-streak", state.streak || 0);
+    set("#pm-boost", (state.xpBoostLeft || 0) + " XP / " + (state.coinBoostLeft || 0) + " Coin");
+    set("#tb-easy", doneList.filter((m) => m.difficulty === "easy").length);
+    set("#tb-med", doneList.filter((m) => m.difficulty === "medium").length);
+    set("#tb-hard", doneList.filter((m) => m.difficulty === "hard").length);
+    set("#tb-legend", doneList.filter((m) => m.difficulty === "legend").length);
+    set("#tb-owned", (state.owned || []).length);
+    set("#tb-wallet", state.wallet ? (WALLET_META[state.wallet.type] || {}).name || "Linked" : "None");
+    set("#tb-quality", (state.settings.quality || "1k").toUpperCase());
+    set("#tb-fps", state.settings.fps === 0 ? "∞" : (state.settings.fps || 60));
+
+    // wallet UI
+    updateWalletUI();
+    updateBadges();
+    renderActivity();
+  }
+
+  function updateWalletUI() {
+    const box = $("#wallet-connected");
+    const grid = $("#wallet-grid");
+    if (!box) return;
+    if (state.wallet) {
+      box.classList.add("show");
+      if (grid) grid.style.display = "none";
+      const meta = WALLET_META[state.wallet.type] || { name: state.wallet.type, icon: "💼" };
+      $("#wc-icon").textContent = meta.icon;
+      $("#wc-name").textContent = meta.name;
+      $("#wc-addr").textContent = state.wallet.address;
+      $("#wc-bal").textContent = state.wallet.balance;
+    } else {
+      box.classList.remove("show");
+      if (grid) grid.style.display = "grid";
+    }
+  }
+
+  function updateBadges() {
+    const doneCount = state.missions.filter((m) => m.done).length;
+    const hasLegend = state.missions.some((m) => m.done && m.difficulty === "legend");
+    const map = {
+      first: doneCount >= 1,
+      streak3: (state.streak || 0) >= 3,
+      lvl5: state.level >= 5,
+      wallet: !!state.wallet,
+      rich: state.coins >= 500,
+      legend: hasLegend,
+      daily7: (state.dailyCount || 0) >= 7
+    };
+    $$("#badge-row .badge-pill").forEach((el) => {
+      const key = el.dataset.badge;
+      el.classList.toggle("unlocked", !!map[key]);
+    });
+  }
+
+  function pushActivity(icon, text) {
+    if (!state.activity) state.activity = [];
+    state.activity.unshift({ icon, text, time: Date.now() });
+    if (state.activity.length > 12) state.activity.length = 12;
+    save();
+    renderActivity();
+  }
+
+  function renderActivity() {
+    const list = $("#activity-list");
+    if (!list) return;
+    const items = state.activity && state.activity.length
+      ? state.activity
+      : [{ icon: "🌟", text: "Welcome to NEKOVERSE", time: Date.now() }];
+    list.innerHTML = items.slice(0, 6).map((a) => {
+      const ago = formatAgo(a.time);
+      return `<div class="activity-item">
+        <div class="act-icon">${a.icon}</div>
+        <div class="act-text">${esc(a.text)}</div>
+        <div class="act-time">${ago}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function formatAgo(ts) {
+    const d = (Date.now() - ts) / 1000;
+    if (d < 60) return "Just now";
+    if (d < 3600) return Math.floor(d / 60) + "m";
+    if (d < 86400) return Math.floor(d / 3600) + "h";
+    return Math.floor(d / 86400) + "d";
+  }
+
+  function fakeAddress(type) {
+    const meta = WALLET_META[type] || { prefix: "0x" };
+    const hex = () => Math.random().toString(16).slice(2);
+    if (meta.prefix === "UQ" || meta.prefix === "EQ") {
+      return meta.prefix + hex().slice(0, 8) + "..." + hex().slice(0, 6);
+    }
+    return "0x" + hex().slice(0, 6) + "..." + hex().slice(0, 4);
+  }
+
+  function connectWallet(type) {
+    const meta = WALLET_META[type];
+    if (!meta) return;
+    showToast("Connecting " + meta.name + "...", "⏳");
+    const card = document.querySelector(`.wallet-card[data-wallet="${type}"]`);
+    if (card) card.classList.add("connecting");
+    // simulate connect delay like real apps
+    setTimeout(() => {
+      state.wallet = {
+        type,
+        address: fakeAddress(type),
+        balance: (Math.random() * 2.5 + 0.1).toFixed(4) + " " + (meta.chain === "TON" ? "TON" : meta.chain === "BSC" ? "BNB" : "ETH")
+      };
+      save();
+      updateWalletUI();
+      updateBadges();
+      pushActivity(meta.icon, "Connected " + meta.name);
+      showToast(meta.name + " connected!", "✅");
+      sfxSuccess();
+      burst(window.innerWidth / 2, window.innerHeight / 3, 28, 180);
+      $("#modal-wallet").classList.remove("show");
+      if (card) card.classList.remove("connecting");
+    }, 1200 + Math.random() * 800);
+  }
+
+  function disconnectWallet() {
+    if (!state.wallet) return;
+    const name = (WALLET_META[state.wallet.type] || {}).name || "Wallet";
+    state.wallet = null;
+    save();
+    updateWalletUI();
+    updateBadges();
+    pushActivity("🔌", "Disconnected " + name);
+    showToast("Wallet disconnected", "🔌");
+    sfxClick();
+  }
+
+  function updateGreeting() {
+    const h = new Date().getHours();
+    let g = "こんにちは! 🌸";
+    if (h < 12) g = "おはようございます! ☀️";
+    else if (h >= 18) g = "こんばんは! 🌙";
+    $("#greet-text").textContent = g;
+    $("#date-text").textContent = new Date().toLocaleDateString("en-US", {
+      weekday: "long", month: "short", day: "numeric"
+    });
+  }
+
+  // -------------------- RENDER MISSIONS --------------------
+  function renderMissions() {
+    const list = $("#mission-list");
+    let filtered = state.missions.slice();
+    const f = state.filter;
+    if (f === "active") filtered = filtered.filter((m) => !m.done);
+    else if (f === "done") filtered = filtered.filter((m) => m.done);
+    else if (["easy", "medium", "hard", "legend"].includes(f)) {
+      filtered = filtered.filter((m) => m.difficulty === f && !m.done);
+    }
+
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty-state"><span class="big-emoji">🌟</span><h3>No missions here</h3><p>Try another filter or add a new quest</p></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered
+      .map((m, idx) => {
+        return `
+        <div class="mission-card diff-${m.difficulty} ${m.done ? "done" : ""}" data-id="${m.id}" style="animation-delay:${idx * 0.03}s">
+          <div class="m-check ${m.done ? "checked" : ""}" data-act="toggle">${m.done ? "✓" : ""}</div>
+          <div class="m-body">
+            <div class="mission-title">${esc(m.title)}</div>
+            <div class="m-meta">
+              <span class="m-tag">${esc(m.tag || "Quest")}</span>
+              <span class="m-diff">${m.difficulty}</span>
+            </div>
+          </div>
+          <div class="m-reward">
+            <span class="m-xp">+${m.xp} XP</span>
+            <span class="m-coin">+${m.coin} 🪙</span>
+          </div>
+        </div>`;
+      })
+      .join("");
+  }
+
+  function esc(s) {
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // -------------------- SHOP --------------------
+  function renderShop() {
+    const list = $("#shop-list");
+    list.innerHTML = SHOP_ITEMS.map((item, idx) => {
+      const owned = state.owned.includes(item.id);
+      return `
+        <div class="shop-item" style="animation-delay:${idx * 0.04}s">
+          <div class="shop-icon" style="background:${item.color}">${item.icon}</div>
+          <div class="shop-body">
+            <h4>${item.name}</h4>
+            <p>${item.desc}</p>
+          </div>
+          <button class="shop-buy ${owned ? "owned" : ""}" data-id="${item.id}">
+            ${owned ? "Owned" : item.price + " 🪙"}
+          </button>
+        </div>`;
+    }).join("");
+  }
+
+  function buyItem(id) {
+    const item = SHOP_ITEMS.find((x) => x.id === id);
+    if (!item || state.owned.includes(id)) return;
+    if (state.coins < item.price) {
+      showToast("Not enough coins!", "😢");
+      sfxError();
+      return;
+    }
+    state.coins -= item.price;
+    state.owned.push(id);
+    // apply effects
+    if (id === "boost_xp") state.xpBoostLeft = 5;
+    if (id === "boost_coin") state.coinBoostLeft = 10;
+    if (id === "energy_core") addXp(200);
+    if (id === "avatar_fox") { state.emoji = "🦊"; }
+    if (id === "avatar_dragon") { state.emoji = "🐉"; }
+    if (id === "title_neon") { /* title is visual via level for now */ }
+    if (id === "particle_premium") particlesOn = true;
+    save();
+    updateHeroUI();
+    renderShop();
+    showToast("Purchased: " + item.name, "🛒");
+    sfxReward();
+    burst(window.innerWidth / 2, window.innerHeight / 2, 25, 45);
+  }
+
+  // -------------------- MISSION ACTIONS --------------------
+  function toggleMission(id) {
+    const m = state.missions.find((x) => x.id === id);
+    if (!m) return;
+    if (m.done) {
+      m.done = false;
+      sfxClick();
+    } else {
+      m.done = true;
+      addXp(m.xp);
+      addCoins(m.coin);
+      pushActivity("✅", "Completed: " + m.title.slice(0, 28));
+      sfxSuccess();
+      showReward(m.xp, m.coin, "Mission Complete!", "🎉");
+      const el = document.querySelector(`.mission-card[data-id="${id}"]`);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        burst(cx, cy, 22, 160);
+        energyRing(cx, cy);
+      }
+    }
+    save();
+    renderMissions();
+    updateHeroUI();
+  }
+
+  function openMissionModal(edit = null) {
+    editingMissionId = edit ? edit.id : null;
+    $("#modal-m-title").textContent = edit ? "✏️ Edit Mission" : "✨ New Mission";
+    $("#m-title-inp").value = edit ? edit.title : "";
+    $("#m-tag-inp").value = edit ? edit.tag || "" : "";
+    selectedDiff = edit ? edit.difficulty : "medium";
+    $$("#diff-row .sel-btn").forEach((b) => b.classList.toggle("active", b.dataset.v === selectedDiff));
+    $("#modal-mission").classList.add("show");
+    $("#fab").classList.add("open");
+    sfxWhoosh();
+    setTimeout(() => $("#m-title-inp").focus(), 280);
+  }
+
+  function closeMissionModal() {
+    $("#modal-mission").classList.remove("show");
+    $("#fab").classList.remove("open");
+    editingMissionId = null;
+    sfxClick();
+  }
+
+  function saveMission() {
+    const title = $("#m-title-inp").value.trim();
+    if (!title) {
+      showToast("Write a mission title!", "⚠️");
+      sfxError();
+      return;
+    }
+    const tag = $("#m-tag-inp").value.trim() || "Quest";
+    const rewards = { easy: [15, 8], medium: [35, 15], hard: [55, 25], legend: [100, 50] };
+    const [xp, coin] = rewards[selectedDiff] || [30, 12];
+    if (editingMissionId) {
+      const m = state.missions.find((x) => x.id === editingMissionId);
+      if (m) {
+        m.title = title;
+        m.tag = tag;
+        m.difficulty = selectedDiff;
+        m.xp = xp;
+        m.coin = coin;
+      }
+      showToast("Mission updated", "✏️");
+    } else {
+      state.missions.unshift({
+        id: "c" + Date.now().toString(36),
+        title, tag, difficulty: selectedDiff, xp, coin,
+        done: false, created: Date.now()
+      });
+      showToast("Mission created!", "🚀");
+      sfxAdd();
+      const fab = $("#fab").getBoundingClientRect();
+      burst(fab.left + 29, fab.top + 29, 20, 320);
+    }
+    save();
+    renderMissions();
+    closeMissionModal();
+  }
+
+  // -------------------- DAILY --------------------
+  function claimDaily() {
+    const today = new Date().toDateString();
+    if (state.lastDaily === today) {
+      showToast("Already claimed today!", "⏰");
+      return;
+    }
+    state.lastDaily = today;
+    state.streak = (state.streak || 0) + 1;
+    state.dailyCount = (state.dailyCount || 0) + 1;
+    addXp(50);
+    addCoins(25);
+    pushActivity("🎁", "Claimed daily reward");
+    save();
+    updateHeroUI();
+    showReward(50, 25, "Daily Reward!", "🎁");
+    sfxReward();
+    burst(window.innerWidth / 2, 200, 30, 45);
+  }
+
+  // -------------------- REWARD / LEVEL UI --------------------
+  function showReward(xp, coin, title, emoji) {
+    $("#reward-emoji").textContent = emoji || "🎉";
+    $("#reward-title").textContent = title || "Reward!";
+    $("#reward-sub").textContent = "Energy absorbed into your core";
+    $("#reward-xp").textContent = `+${xp} XP`;
+    $("#reward-coin").textContent = `+${coin} 🪙`;
+    $("#reward-overlay").classList.add("show");
+  }
+
+  function showLevelUp() {
+    $("#levelup-text").textContent = `You reached Level ${state.level} — ${titleForLevel(state.level)}`;
+    $("#levelup-flash").classList.add("show");
+  }
+
+  // -------------------- TOAST --------------------
+  function showToast(msg, emoji = "✨") {
+    const el = $("#toast");
+    el.textContent = `${emoji} ${msg}`;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+  }
+
+  // -------------------- NAVIGATION --------------------
+  function switchScreen(name) {
+    $$(".screen").forEach((s) => s.classList.remove("active"));
+    const target = $("#screen-" + name);
+    if (target) target.classList.add("active");
+    $$(".nav-item").forEach((n) => n.classList.toggle("active", n.dataset.screen === name));
+    // hide FAB on non-home
+    $("#fab").style.display = name === "home" ? "flex" : "none";
+    if (name === "shop") renderShop();
+    if (name === "admin") refreshAdmin();
+    if (name === "profile") updateHeroUI();
+    sfxClick();
+  }
+
+  // -------------------- ADMIN --------------------
+  function refreshAdmin() {
+    if (!state.adminUnlocked) {
+      $("#admin-gate").style.display = "block";
+      $("#admin-panel").style.display = "none";
+      return;
+    }
+    $("#admin-gate").style.display = "none";
+    $("#admin-panel").style.display = "block";
+    $("#adm-total").textContent = state.missions.length;
+    $("#adm-done").textContent = state.missions.filter((m) => m.done).length;
+    $("#adm-lvl").textContent = state.level;
+    $("#adm-coins").textContent = state.coins;
+    $("#adm-xp").textContent = state.totalXp;
+    $("#adm-streak").textContent = state.streak;
+    $("#adm-audio").textContent = audioCtx ? audioCtx.state : "idle";
+    $("#adm-particles").textContent = particlesOn ? "ON" : "OFF";
+    try {
+      const size = new Blob([localStorage.getItem(STORAGE) || ""]).size;
+      $("#adm-storage").textContent = (size / 1024).toFixed(1) + " KB";
+    } catch { $("#adm-storage").textContent = "—"; }
+
+    const ml = $("#adm-mission-list");
+    ml.innerHTML = state.missions.slice(0, 20).map((m) => `
+      <div class="admin-card" style="margin-top:6px">
+        <div class="row"><span style="max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.title)}</span>
+        <strong style="color:${m.done ? "var(--green)" : "var(--text-dim)"}">${m.done ? "DONE" : "OPEN"}</strong></div>
+        <div class="admin-actions">
+          <button class="admin-btn" data-adm-toggle="${m.id}">Toggle</button>
+          <button class="admin-btn danger" data-adm-del="${m.id}">Delete</button>
+        </div>
+      </div>`).join("") + (state.missions.length > 20 ? `<p style="color:var(--text-mute);font-size:0.75rem;margin-top:8px">+ ${state.missions.length - 20} more...</p>` : "");
+  }
+
+  function tryAdminLogin() {
+    const pass = $("#admin-pass").value;
+    if (pass === ADMIN_PASS) {
+      state.adminUnlocked = true;
+      save();
+      refreshAdmin();
+      showToast("Admin unlocked", "🛡️");
+      sfxSuccess();
+    } else {
+      showToast("Wrong password", "🚫");
+      sfxError();
+    }
+  }
+
+  // -------------------- EVENTS --------------------
+  function bind() {
+    // nav
+    $("#bottom-nav").addEventListener("click", (e) => {
+      const item = e.target.closest(".nav-item");
+      if (item) switchScreen(item.dataset.screen);
+    });
+
+    // filters
+    $("#filter-bar").addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      $$("#filter-bar .chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.filter = chip.dataset.f;
+      sfxClick();
+      renderMissions();
+    });
+
+    // mission list
+    $("#mission-list").addEventListener("click", (e) => {
+      const card = e.target.closest(".mission-card");
+      if (!card) return;
+      const id = card.dataset.id;
+      if (e.target.closest("[data-act='toggle']") || e.target.classList.contains("m-check")) {
+        toggleMission(id);
+      } else {
+        // tap card = toggle as well for convenience
+        toggleMission(id);
+      }
+    });
+
+    // fab
+    $("#fab").addEventListener("click", (e) => {
+      energyRing(e.clientX || window.innerWidth - 40, e.clientY || window.innerHeight - 100);
+      if ($("#modal-mission").classList.contains("show")) closeMissionModal();
+      else openMissionModal();
+    });
+
+    // global energy ring on primary taps (subtle)
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".chip, .nav-item, .icon-btn, .daily-claim, .shop-buy, .btn-primary, .wallet-card")) {
+        energyRing(e.clientX, e.clientY);
+      }
+    });
+
+    // mission modal
+    $("#m-cancel").addEventListener("click", closeMissionModal);
+    $("#m-save").addEventListener("click", saveMission);
+    $("#modal-mission").addEventListener("click", (e) => {
+      if (e.target === $("#modal-mission")) closeMissionModal();
+    });
+    $("#diff-row").addEventListener("click", (e) => {
+      const btn = e.target.closest(".sel-btn");
+      if (!btn) return;
+      selectedDiff = btn.dataset.v;
+      $$("#diff-row .sel-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      sfxClick();
+    });
+    $("#m-title-inp").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") saveMission();
+    });
+
+    // daily
+    $("#daily-banner").addEventListener("click", claimDaily);
+    $("#daily-claim-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      claimDaily();
+    });
+
+    // music — ensure AudioContext resumes on same user gesture
+    $("#btn-music").addEventListener("click", () => {
+      ensureAudio();
+      state.settings.music = !state.settings.music;
+      $("#btn-music").classList.toggle("active", state.settings.music);
+      $("#tog-music").classList.toggle("on", state.settings.music);
+      if (state.settings.music) {
+        startMusic();
+        showToast("Music ON 🎵", "🎶");
+      } else {
+        stopMusic();
+        showToast("Music OFF", "🔇");
+      }
+      save();
+      sfxClick();
+    });
+
+    // settings button -> settings screen
+    $("#btn-settings").addEventListener("click", () => switchScreen("settings"));
+
+    // toggles
+    const togMap = {
+      "tog-sfx": "sfx",
+      "tog-music": "music",
+      "tog-particles": "particles",
+      "tog-stars": "stars",
+      "tog-glow": "glow",
+      "tog-haptic": "haptic"
+    };
+    Object.keys(togMap).forEach((id) => {
+      $(`#${id}`).addEventListener("click", function () {
+        const key = togMap[id];
+        state.settings[key] = !state.settings[key];
+        this.classList.toggle("on", state.settings[key]);
+        if (key === "music") {
+          ensureAudio();
+          $("#btn-music").classList.toggle("active", state.settings.music);
+          if (state.settings.music) startMusic();
+          else stopMusic();
+        }
+        if (key === "particles") particlesOn = state.settings.particles;
+        if (key === "stars") starsOn = state.settings.stars;
+        if (key === "glow") {
+          document.documentElement.style.setProperty(
+            "--glow-pink",
+            state.settings.glow ? "0 0 18px rgba(255,45,149,0.55), 0 0 40px rgba(255,45,149,0.25)" : "none"
+          );
+        }
+        save();
+        sfxClick();
+      });
+    });
+
+    // shop buy
+    $("#shop-list").addEventListener("click", (e) => {
+      const btn = e.target.closest(".shop-buy");
+      if (btn && !btn.classList.contains("owned")) buyItem(btn.dataset.id);
+    });
+
+    // profile
+    $("#btn-edit-profile").addEventListener("click", () => {
+      $("#p-name-inp").value = state.name;
+      selectedAvatar = state.emoji;
+      $$("#avatar-row .sel-btn").forEach((b) => b.classList.toggle("active", b.dataset.v === selectedAvatar));
+      $("#modal-profile").classList.add("show");
+      sfxWhoosh();
+    });
+    $("#edit-avatar-btn").addEventListener("click", () => $("#btn-edit-profile").click());
+    $("#p-cancel").addEventListener("click", () => {
+      $("#modal-profile").classList.remove("show");
+      sfxClick();
+    });
+    $("#modal-profile").addEventListener("click", (e) => {
+      if (e.target === $("#modal-profile")) {
+        $("#modal-profile").classList.remove("show");
+      }
+    });
+    $("#avatar-row").addEventListener("click", (e) => {
+      const btn = e.target.closest(".sel-btn");
+      if (!btn) return;
+      selectedAvatar = btn.dataset.v;
+      $$("#avatar-row .sel-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      sfxClick();
+    });
+    $("#p-save").addEventListener("click", () => {
+      const n = $("#p-name-inp").value.trim();
+      if (n) state.name = n;
+      state.emoji = selectedAvatar;
+      save();
+      updateHeroUI();
+      $("#modal-profile").classList.remove("show");
+      showToast("Profile updated", "👤");
+      sfxSuccess();
+    });
+
+    $("#btn-reset-progress").addEventListener("click", () => {
+      if (!confirm("Reset all progress? This cannot be undone.")) return;
+      state.level = 1;
+      state.xp = 0;
+      state.totalXp = 0;
+      state.coins = 0;
+      state.streak = 0;
+      state.lastDaily = null;
+      state.dailyCount = 0;
+      state.owned = [];
+      state.wallet = null;
+      state.missions.forEach((m) => (m.done = false));
+      save();
+      updateHeroUI();
+      renderMissions();
+      showToast("Progress reset", "🔄");
+      sfxDelete();
+    });
+
+    $("#btn-admin-enter").addEventListener("click", () => switchScreen("admin"));
+
+    // Wallet connect
+    $("#wallet-grid").addEventListener("click", (e) => {
+      const card = e.target.closest(".wallet-card");
+      if (!card) return;
+      if (state.wallet) {
+        showToast("Disconnect current wallet first", "⚠️");
+        return;
+      }
+      connectWallet(card.dataset.wallet);
+    });
+    $("#btn-disconnect").addEventListener("click", disconnectWallet);
+    $("#wallet-modal-list").addEventListener("click", (e) => {
+      const opt = e.target.closest(".wallet-option");
+      if (opt) connectWallet(opt.dataset.wallet);
+    });
+    $("#wallet-modal-close").addEventListener("click", () => {
+      $("#modal-wallet").classList.remove("show");
+      sfxClick();
+    });
+    $("#modal-wallet").addEventListener("click", (e) => {
+      if (e.target === $("#modal-wallet")) $("#modal-wallet").classList.remove("show");
+    });
+
+    // Invite code copy
+    $("#invite-code").addEventListener("click", () => {
+      const code = state.inviteCode || "NEKO-XXXX";
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).then(() => {
+          showToast("Invite code copied!", "📋");
+          sfxClick();
+        }).catch(() => showToast(code, "📋"));
+      } else {
+        showToast(code, "📋");
+      }
+    });
+
+    $("#btn-copy-id").addEventListener("click", () => {
+      const id = state.playerId || "NK-XXXX";
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(id).then(() => {
+          showToast("Player ID copied: " + id, "📋");
+          sfxClick();
+        }).catch(() => showToast(id, "📋"));
+      } else showToast(id, "📋");
+    });
+    $("#btn-admin-back").addEventListener("click", () => switchScreen("profile"));
+
+    // admin login
+    $("#admin-login-btn").addEventListener("click", tryAdminLogin);
+    $("#admin-pass").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryAdminLogin();
+    });
+
+    // admin actions
+    $("#adm-add-xp").addEventListener("click", () => { addXp(100); refreshAdmin(); showToast("+100 XP", "⚡"); });
+    $("#adm-add-coins").addEventListener("click", () => { addCoins(50); refreshAdmin(); showToast("+50 Coins", "🪙"); });
+    $("#adm-reset-daily").addEventListener("click", () => {
+      state.lastDaily = null;
+      save();
+      updateHeroUI();
+      refreshAdmin();
+      showToast("Daily reset", "🎁");
+    });
+    $("#adm-unlock-all").addEventListener("click", () => {
+      SHOP_ITEMS.forEach((i) => {
+        if (!state.owned.includes(i.id)) state.owned.push(i.id);
+      });
+      save();
+      refreshAdmin();
+      showToast("All shop unlocked", "🛒");
+    });
+    $("#adm-clear-missions").addEventListener("click", () => {
+      if (!confirm("Delete all missions?")) return;
+      state.missions = [];
+      save();
+      renderMissions();
+      refreshAdmin();
+      showToast("Missions cleared", "🗑️");
+    });
+    $("#adm-full-reset").addEventListener("click", () => {
+      if (!confirm("FULL RESET — everything?")) return;
+      localStorage.removeItem(STORAGE);
+      location.reload();
+    });
+    $("#adm-seed-missions").addEventListener("click", () => {
+      seedMissions();
+      save();
+      renderMissions();
+      refreshAdmin();
+      showToast("48 missions seeded", "📋");
+      sfxSuccess();
+    });
+    $("#adm-add-custom").addEventListener("click", () => {
+      switchScreen("home");
+      setTimeout(() => openMissionModal(), 300);
+    });
+
+    $("#adm-mission-list").addEventListener("click", (e) => {
+      const tog = e.target.closest("[data-adm-toggle]");
+      const del = e.target.closest("[data-adm-del]");
+      if (tog) {
+        toggleMission(tog.dataset.admToggle);
+        refreshAdmin();
+      }
+      if (del) {
+        state.missions = state.missions.filter((m) => m.id !== del.dataset.admDel);
+        save();
+        renderMissions();
+        refreshAdmin();
+        sfxDelete();
+      }
+    });
+
+    $("#adm-export").addEventListener("click", () => {
+      const data = JSON.stringify(state, null, 2);
+      const blob = new Blob([data], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "nekoverse-save.json";
+      a.click();
+      showToast("Save exported", "📤");
+    });
+    $("#adm-import").addEventListener("click", () => {
+      const inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = "application/json";
+      inp.onchange = () => {
+        const file = inp.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            Object.assign(state, data);
+            save();
+            updateHeroUI();
+            renderMissions();
+            refreshAdmin();
+            showToast("Save imported", "📥");
+            sfxSuccess();
+          } catch {
+            showToast("Invalid file", "⚠️");
+          }
+        };
+        reader.readAsText(file);
+      };
+      inp.click();
+    });
+
+    // reward / levelup close
+    $("#reward-ok").addEventListener("click", () => {
+      $("#reward-overlay").classList.remove("show");
+      sfxClick();
+    });
+    $("#levelup-ok").addEventListener("click", () => {
+      $("#levelup-flash").classList.remove("show");
+      sfxClick();
+    });
+
+    // keyboard
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeMissionModal();
+        $("#modal-profile").classList.remove("show");
+        $("#reward-overlay").classList.remove("show");
+        $("#levelup-flash").classList.remove("show");
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      resizeCanvases();
+      initStars();
+    });
+
+    // unlock audio
+    document.body.addEventListener("click", () => ensureAudio(), { once: true });
+    document.body.addEventListener("touchstart", () => ensureAudio(), { once: true });
+
+    // Quality + FPS
+    $("#quality-row").addEventListener("click", (e) => {
+      const btn = e.target.closest(".sel-btn");
+      if (btn) {
+        applyQuality(btn.dataset.q);
+        sfxClick();
+        updateHeroUI();
+      }
+    });
+    $("#fps-row").addEventListener("click", (e) => {
+      const btn = e.target.closest(".sel-btn");
+      if (btn) {
+        applyFps(btn.dataset.fps);
+        sfxClick();
+        updateHeroUI();
+      }
+    });
+  }
+
+  // -------------------- INIT --------------------
+  function init() {
+    resizeCanvases();
+    initStars();
+    loop();
+    load();
+    // sync toggles
+    $("#tog-sfx").classList.toggle("on", state.settings.sfx);
+    $("#tog-music").classList.toggle("on", state.settings.music);
+    $("#tog-particles").classList.toggle("on", state.settings.particles);
+    $("#tog-stars").classList.toggle("on", state.settings.stars);
+    $("#tog-glow").classList.toggle("on", state.settings.glow);
+    $("#tog-haptic").classList.toggle("on", state.settings.haptic);
+    particlesOn = state.settings.particles;
+    starsOn = state.settings.stars;
+    if (state.settings.music) {
+      $("#btn-music").classList.add("active");
+    }
+    // quality + fps UI
+    const q = state.settings.quality || "1k";
+    targetFps = typeof state.settings.fps === "number" ? state.settings.fps : 60;
+    $$("#quality-row .sel-btn").forEach((b) => b.classList.toggle("active", b.dataset.q === q));
+    $$("#fps-row .sel-btn").forEach((b) => b.classList.toggle("active", String(b.dataset.fps) === String(targetFps)));
+    resizeCanvases();
+    initStars();
+
+    updateGreeting();
+    updateHeroUI();
+    renderMissions();
+    bind();
+
+    setTimeout(() => {
+      $("#intro").classList.add("hide");
+      burst(window.innerWidth / 2, window.innerHeight / 2, 35, 300);
+      sfxSuccess();
+    }, 1800);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
