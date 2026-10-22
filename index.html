@@ -1,93 +1,14 @@
 from pathlib import Path
-import zipfile, re, os, json, textwrap
-
-out = Path("/mnt/data/neko_ios_anime_premium")
-out.mkdir(exist_ok=True)
-
-html = r'''<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080914">
-<title>NEKOVERSE — Anime Energy OS</title>
-<style>
-/* NEKOVERSE • premium dark iOS-inspired interface */
-:root{--bg:#080914;--panel:#111326;--panel2:#171a31;--line:#292c4a;--text:#f7f7ff;--muted:#969bbd;--pink:#ff4eb8;--violet:#8b5cff;--cyan:#42e9ff;--gold:#ffcf6b;--green:#73ffc5;--radius:24px;--safe:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#29164c 0,transparent 34%),radial-gradient(ellipse at 100% 25%,#102f48 0,transparent 28%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden}
-button,input{font:inherit}button{cursor:pointer;color:inherit;border:0}button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
-#stars{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.65}
-.app{position:relative;z-index:1;max-width:1180px;margin:auto;padding:18px 18px calc(100px + var(--safe))}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:2px}.logo{width:43px;height:43px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),var(--violet) 55%,var(--cyan));box-shadow:0 0 25px #a64eff55;font-size:23px}.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:3px;margin-top:3px}.top-actions{display:flex;gap:8px}.glass{background:#ffffff0b;border:1px solid #ffffff16;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.iconbtn{width:43px;height:43px;border-radius:15px;font-size:18px;transition:.25s}.iconbtn:active,.btn:active,.navbtn:active{transform:scale(.94)}
-.profileline{display:flex;align-items:center;gap:12px;margin:4px 0 18px}.avatar{width:49px;height:49px;border-radius:17px;background:linear-gradient(135deg,#ffd4ef,#8b5cff);display:grid;place-items:center;font-size:27px;box-shadow:0 0 24px #ff4eb82c}.hello{font-size:13px;color:var(--muted)}.username{font-weight:800;font-size:18px;margin-top:2px}.rank{margin-left:auto;color:var(--gold);font-size:11px;border:1px solid #ffcf6b44;background:#ffcf6b12;padding:8px 10px;border-radius:99px}
-.hero{position:relative;overflow:hidden;min-height:320px;padding:25px;border:1px solid #ffffff1b;border-radius:32px;background:linear-gradient(115deg,#21143bdf,#141a32eb 55%,#102d3ae0);box-shadow:0 22px 70px #0005,inset 0 1px #ffffff12;display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
-.hero:before{content:"";position:absolute;width:330px;height:330px;border-radius:50%;right:-100px;top:-130px;background:radial-gradient(circle,#ff4eb850,transparent 68%);animation:pulseGlow 4s infinite alternate}
-.eyebrow{font-size:10px;letter-spacing:3px;color:var(--cyan);font-weight:800}.hero h1{font-size:clamp(32px,5vw,58px);line-height:.99;letter-spacing:-2px;margin:14px 0 12px;max-width:520px}.hero h1 span{background:linear-gradient(90deg,#fff,var(--pink),var(--cyan));background-clip:text;color:transparent}.hero p{color:#b7bbd7;line-height:1.6;font-size:13px;max-width:430px}.hero-buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}.btn{padding:13px 17px;border-radius:15px;font-weight:800;font-size:12px;transition:transform .2s,filter .2s;position:relative;overflow:hidden}.primary{background:linear-gradient(100deg,var(--pink),var(--violet));box-shadow:0 8px 28px #a348ff40}.secondary{background:#ffffff0c;border:1px solid #ffffff22}.hero-art{min-height:250px;display:grid;place-items:center;position:relative}.orb{position:absolute;width:min(28vw,250px);height:min(28vw,250px);min-width:175px;min-height:175px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffb5e7,#a04cff 38%,#203b83 65%,#0c142e 75%);box-shadow:0 0 50px #a84dff55,0 0 120px #3be9ff1a;animation:float 5s ease-in-out infinite}.orb:after{content:"";position:absolute;inset:-15px;border:1px solid #8a6dff66;border-radius:50%;transform:rotateX(65deg);animation:spin 10s linear infinite}.anime-face{position:relative;z-index:2;font-size:clamp(110px,17vw,170px);filter:drop-shadow(0 10px 20px #0008);animation:float 4s ease-in-out infinite;user-select:none}.energy-ring{position:absolute;width:260px;height:260px;border:2px solid #42e9ff55;border-radius:50%;transform:rotateX(68deg);animation:spin 8s linear infinite}.spark{position:absolute;font-size:25px;animation:twinkle 2s infinite alternate}.spark.s1{top:15%;right:18%}.spark.s2{bottom:16%;left:9%;animation-delay:.7s}.spark.s3{top:28%;left:12%;animation-delay:1.2s}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:15px 0 28px}.stat{padding:16px;border-radius:21px;border:1px solid #ffffff12;background:linear-gradient(145deg,#171a31dd,#0f1124dd);position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:65px;height:65px;right:-22px;bottom:-25px;background:var(--glow,#8b5cff);filter:blur(34px);opacity:.4}.stat-head{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}.stat-value{font-size:24px;font-weight:900;margin-top:8px;letter-spacing:-1px}.stat-foot{font-size:10px;color:var(--green);margin-top:5px}
-.section{margin:30px 0}.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:15px}.sectionhead h2{font-size:22px;letter-spacing:-.7px;margin:0}.sectionhead p{color:var(--muted);font-size:11px;margin:5px 0 0}.tiny-link{background:none;color:var(--cyan);font-size:11px;font-weight:800;padding:8px}
-.quickgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.quick{padding:18px;border-radius:22px;text-align:left;min-height:120px;background:linear-gradient(145deg,#1c1e38,#111326);border:1px solid #ffffff13;transition:.25s;position:relative;overflow:hidden}.quick:hover,.mission:hover,.upgrade:hover{transform:translateY(-4px);border-color:#a78bff77;box-shadow:0 12px 30px #0004}.quick .emoji{font-size:28px;display:block;margin-bottom:13px;filter:drop-shadow(0 0 12px #9a5dff77)}.quick b{font-size:13px;display:block}.quick small{color:var(--muted);font-size:10px;display:block;margin-top:5px}
-.filters{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.filter{white-space:nowrap;padding:10px 14px;border-radius:99px;background:#ffffff08;border:1px solid #ffffff13;color:#aeb2cf;font-size:11px;font-weight:700}.filter.active{background:linear-gradient(90deg,#ff4eb82b,#8b5cff33);border-color:#b278ff8c;color:#fff}
-.missions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mission{padding:17px;border-radius:22px;background:linear-gradient(145deg,#181a31,#0f1122);border:1px solid #ffffff13;transition:.25s;min-width:0}.missiontop{display:flex;justify-content:space-between;align-items:start;gap:8px}.missionico{width:45px;height:45px;display:grid;place-items:center;border-radius:15px;font-size:23px;background:linear-gradient(135deg,#ffffff14,#ffffff04);border:1px solid #ffffff12}.reward{font-size:11px;color:var(--gold);font-weight:800;white-space:nowrap}.mission h3{font-size:14px;margin:14px 0 6px}.mission p{font-size:11px;color:var(--muted);line-height:1.5;min-height:32px;margin:0 0 15px}.missionfoot{display:flex;align-items:center;justify-content:space-between;gap:8px}.tag{font-size:9px;color:var(--cyan);background:#42e9ff10;border:1px solid #42e9ff22;border-radius:8px;padding:6px 8px}.claim{font-size:10px;font-weight:900;padding:9px 11px;border-radius:11px;background:#ffffff12;border:1px solid #ffffff16}.claim.done{background:#73ffc51a;color:var(--green);border-color:#73ffc544}
-.widepanel{padding:20px;border-radius:25px;background:linear-gradient(115deg,#171832,#15112b);border:1px solid #ffffff13;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}.wideicon{font-size:43px}.widecontent{flex:1}.widecontent h3{margin:0 0 6px;font-size:16px}.widecontent p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}.progress{height:7px;border-radius:9px;background:#ffffff12;overflow:hidden;margin-top:12px}.progress span{height:100%;width:42%;display:block;background:linear-gradient(90deg,var(--pink),var(--cyan));border-radius:9px;box-shadow:0 0 12px #42e9ff77;transition:width .5s}
-.upgrades{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.upgrade{border:1px solid #ffffff13;border-radius:22px;padding:18px;background:linear-gradient(150deg,#1c1b36,#111326);transition:.25s}.upgrade .uico{font-size:28px}.upgrade h3{font-size:14px;margin:12px 0 6px}.upgrade p{color:var(--muted);font-size:11px;line-height:1.5;min-height:34px}.cost{color:var(--gold);font-size:11px;font-weight:900}.upgrade button{margin-top:12px;width:100%}
-.musicbox{display:flex;align-items:center;gap:15px;padding:18px;border:1px solid #ffffff13;border-radius:23px;background:linear-gradient(120deg,#171b32,#111326)}.album{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;font-size:29px;background:linear-gradient(135deg,#ff4eb8,#7a50ff,#42e9ff);box-shadow:0 0 25px #8b5cff33}.track{flex:1;min-width:0}.track b{display:block;font-size:13px}.track small{color:var(--muted);font-size:10px}.soundbars{height:25px;display:flex;align-items:center;gap:3px}.soundbars i{display:block;width:3px;height:7px;border-radius:3px;background:var(--cyan)}.soundbars.playing i{animation:bars .7s ease-in-out infinite alternate}.soundbars i:nth-child(2n){animation-delay:.2s}.soundbars i:nth-child(3n){animation-delay:.4s}
-.profilecard{display:flex;align-items:center;gap:15px;padding:20px;border-radius:24px;background:#14162b;border:1px solid #ffffff13}.profilecard .avatar{width:65px;height:65px;font-size:34px}.profilemeta{flex:1}.profilemeta h3{margin:0 0 5px}.profilemeta p{margin:0;color:var(--muted);font-size:11px}
-.bottomnav{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:9px 12px calc(9px + var(--safe));background:#0b0c19d9;border-top:1px solid #ffffff15;backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);display:flex;justify-content:center;gap:5px}.navinner{width:min(650px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.navbtn{background:none;color:#777d9f;border-radius:15px;padding:8px 3px 6px;display:flex;align-items:center;flex-direction:column;gap:4px;font-size:9px;font-weight:700;transition:.2s}.navbtn span{font-size:20px}.navbtn.active{background:linear-gradient(180deg,#8b5cff26,#ff4eb80d);color:#fff;box-shadow:inset 0 0 0 1px #8b5cff30}.navbtn.active span{filter:drop-shadow(0 0 8px #b17aff)}
-.toast{position:fixed;z-index:99;left:50%;bottom:100px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#20233b;border:1px solid #ffffff22;border-radius:15px;padding:13px 18px;font-size:12px;font-weight:700;box-shadow:0 15px 50px #0008;transition:.3s;max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}.modalback{position:fixed;inset:0;z-index:50;background:#050610c9;backdrop-filter:blur(12px);display:none;place-items:center;padding:20px}.modalback.show{display:grid}.modal{width:min(420px,100%);padding:25px;border-radius:28px;background:linear-gradient(145deg,#22203e,#101222);border:1px solid #ffffff22;box-shadow:0 30px 100px #0009;text-align:center;animation:pop .3s ease}.modal .big{font-size:54px}.modal h2{margin:12px 0 8px}.modal p{color:var(--muted);font-size:12px;line-height:1.6}.modal .btn{width:100%;margin-top:12px}.confetti{position:fixed;z-index:80;pointer-events:none;font-size:20px;animation:confetti 1.2s ease-out forwards}
-.hidden{display:none!important}.footer{text-align:center;color:#6f7495;font-size:10px;padding:25px 0 8px}
-@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}@keyframes spin{to{transform:rotateX(65deg) rotate(360deg)}}@keyframes pulseGlow{to{opacity:.45;transform:scale(1.16)}}@keyframes twinkle{from{transform:scale(.7) rotate(-10deg);opacity:.5}to{transform:scale(1.2) rotate(20deg);opacity:1}}@keyframes bars{to{height:23px}}@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}@keyframes confetti{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),-150px) rotate(300deg)}}
-@media(max-width:850px){.hero{grid-template-columns:1fr .7fr;min-height:300px;padding:22px}.hero-art{min-height:210px}.missions{grid-template-columns:repeat(2,1fr)}.quickgrid{grid-template-columns:repeat(2,1fr)}.upgrades{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.app{padding:12px 12px calc(95px + var(--safe))}.brand{font-size:13px}.hero{grid-template-columns:1fr;min-height:0;padding:22px}.hero h1{font-size:40px}.hero-art{position:absolute;right:-20px;bottom:-20px;width:150px;height:180px;opacity:.48;pointer-events:none}.hero-art .orb{min-width:145px;min-height:145px;width:145px;height:145px}.hero-art .anime-face{font-size:110px}.hero-art .energy-ring{width:160px;height:160px}.hero p{max-width:78%}.hero-buttons{position:relative;z-index:2}.stats{gap:8px;margin-top:12px}.stat{padding:13px}.stat-value{font-size:22px}.missions{grid-template-columns:1fr}.mission p{min-height:0}.quickgrid{gap:8px}.quick{min-height:112px;padding:15px}.upgrades{grid-template-columns:1fr}.upgrade{display:grid;grid-template-columns:45px 1fr;gap:0 10px}.upgrade .uico{grid-row:span 3}.upgrade h3{margin:2px 0 5px}.upgrade p{min-height:0;margin:0}.upgrade .cost,.upgrade button{grid-column:2}.widepanel{align-items:flex-start;gap:12px;padding:16px}.wideicon{font-size:33px}.sectionhead h2{font-size:20px}.profilecard{padding:15px}.rank{font-size:9px;padding:7px}.topbar{padding-top:4px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
-</style>
-</head>
-<body>
-<canvas id="stars"></canvas>
-<div class="app">
-<header class="topbar">
-  <div class="brand"><div class="logo">✦</div><div>NEKOVERSE<small>ANIME ENERGY OS</small></div></div>
-  <div class="top-actions"><button class="iconbtn glass" id="soundToggle" aria-label="Toggle sound">🔊</button><button class="iconbtn glass" id="dailyBtn" aria-label="Daily reward">🎁</button></div>
-</header>
-<div class="profileline"><div class="avatar">🧝🏻‍♀️</div><div><div class="hello">WELCOME BACK, HUNTER</div><div class="username" id="nameDisplay">Shadow Bunny ✨</div></div><div class="rank">✦ S-RANK</div></div>
-<section class="hero" id="home">
-  <div><div class="eyebrow">✧ YOUR NEXT EVOLUTION STARTS NOW</div><h1>ENTER THE<br><span>NEKOVERSE.</span></h1><p>Complete missions. Collect energy. Awaken your ultimate anime form. Your journey is only beginning.</p><div class="hero-buttons"><button class="btn primary" onclick="goTo('missions')">⚡ Explore missions</button><button class="btn secondary" onclick="openModal('daily')">🎁 Daily bonus</button></div></div>
-  <div class="hero-art"><div class="orb"></div><div class="energy-ring"></div><div class="anime-face">🧙🏻‍♀️</div><span class="spark s1">✦</span><span class="spark s2">⚡</span><span class="spark s3">✧</span></div>
-</section>
-<div class="stats">
-  <div class="stat" style="--glow:#ffcf6b"><div class="stat-head">🪙 COINS</div><div class="stat-value" id="coins">2,450</div><div class="stat-foot">↗ Your treasure</div></div>
-  <div class="stat" style="--glow:#42e9ff"><div class="stat-head">⚡ ENERGY</div><div class="stat-value" id="energy">78%</div><div class="stat-foot">↗ Power available</div></div>
-  <div class="stat" style="--glow:#ff4eb8"><div class="stat-head">🔥 STREAK</div><div class="stat-value" id="streak">07 days</div><div class="stat-foot">↗ Keep it alive</div></div>
-  <div class="stat" style="--glow:#8b5cff"><div class="stat-head">🏆 LEVEL</div><div class="stat-value" id="level">12</div><div class="stat-foot">↗ Rising hunter</div></div>
-</div>
-<section class="section" id="quick">
- <div class="sectionhead"><div><h2>Quick access</h2><p>Your world, one tap away.</p></div></div>
- <div class="quickgrid">
-  <button class="quick" onclick="goTo('missions')"><span class="emoji">🎯</span><b>Daily missions</b><small>Earn coins & XP</small></button>
-  <button class="quick" onclick="goTo('upgrades')"><span class="emoji">💎</span><b>Power shop</b><small>Upgrade your aura</small></button>
-  <button class="quick" onclick="goTo('music')"><span class="emoji">🎧</span><b>Anime ambience</b><small>Sound & energy</small></button>
-  <button class="quick" onclick="openModal('profile')"><span class="emoji">🪪</span><b>Hunter profile</b><small>Your stats</small></button>
- </div>
-</section>
-<section class="section" id="missions">
- <div class="sectionhead"><div><h2>Mission board <span style="color:var(--pink)">✦</span></h2><p>Choose a quest and claim your reward.</p></div><button class="tiny-link" onclick="toast('All missions are shown below ✨')">VIEW ALL ↗</button></div>
- <div class="filters" id="filters"><button class="filter active" data-filter="all">✦ All quests</button><button class="filter" data-filter="daily">☀ Daily</button><button class="filter" data-filter="social">🌐 Social</button><button class="filter" data-filter="battle">⚔ Battle</button><button class="filter" data-filter="story">📖 Story</button><button class="filter" data-filter="special">💠 Special</button></div>
- <div class="missions" id="missionGrid"></div>
-</section>
-<section class="section" id="progress">
- <div class="sectionhead"><div><h2>Hunter evolution</h2><p>Your path to the next awakening.</p></div><span class="tag">LEVEL <span id="levelTag">12</span></span></div>
- <div class="widepanel"><div class="wideicon">🌌</div><div class="widecontent"><h3>Awakening sequence</h3><p id="xpText">4,200 / 10,000 XP until your next evolution</p><div class="progress"><span id="xpBar"></span></div></div><button class="btn secondary" onclick="goTo('upgrades')">Boost ↗</button></div>
-</section>
-<section class="section" id="upgrades">
- <div class="sectionhead"><div><h2>Power shop</h2><p>Spend coins to strengthen your hunter.</p></div><span class="tag">UPGRADE LAB</span></div>
- <div class="upgrades">
-  <div class="upgrade"><div class="uico">🔮</div><h3>Crystal aura</h3><p>Amplify your energy glow and boost your XP.</p><div class="cost">🪙 500 coins</div><button class="btn secondary" onclick="buyUpgrade('aura',500)">Upgrade ✦</button></div>
-  <div class="upgrade"><div class="uico">🪽</div><h3>Phantom wings</h3><p>Unlock a stronger hunter aura and extra power.</p><div class="cost">🪙 850 coins</div><button class="btn secondary" onclick="buyUpgrade('wings',850)">Unlock ✦</button></div>
-  <div class="upgrade"><div class="uico">⚡</div><h3>Thunder core</h3><p>Channel a burst of energy into your next mission.</p><div class="cost">🪙 1,200 coins</div><button class="btn secondary" onclick="buyUpgrade('core',1200)">Activate ✦</button></div>
- </div>
-</section>
-<section class="section" id="music">
- <div class="sectionhead"><div><h2>Sound sanctuary</h2><p>Ambient tones and action sound effects.</p></div><span class="tag">AUDIO LAB</span></div>
- <div class="musicbox"><div class="album">🎼</div><div class="track"><b>Neon Moon · Ambient Synth</b><small id="audioStatus">Tap play to start your energy soundtrack</small></div><div class="soundbars" id="soundbars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button class="iconbtn glass" id="musicToggle">▶️</button></div>
- <p style="font-size:10px;color:var(--muted);line-height:1.6;margin:10px 3px">Sound is generated in your browser. Tap Play to enable audio. Your device volume controls loudness.</p>
-</section>
-<section class="section" id="profile">
- <div class=
+import re, zipfile
+p=Path("/mnt/data/animeos_tasks_premium/index.html")
+s=p.read_text(encoding="utf-8")
+# Fix the one formatting corruption caused by reflowing an apostrophe inside an HTML-escape mapping.
+s=s.replace("'\"':'&quot;\n',\"'\":'&#39;'", "'\"':'&quot;','\\'':'&#39;'")
+# The previous transformation may have placed newline inside the entity string; replace exact visible broken fragment too.
+s=s.replace("'\"':'&quot;\n;'\\'':'&#39;'", "'\"':'&quot;','\\'':'&#39;'")
+p.write_text(s,encoding="utf-8")
+# regenerate zip
+with zipfile.ZipFile("/mnt/data/animeos_tasks_premium_700plus.zip","w",zipfile.ZIP_DEFLATED) as z:
+    z.write(p,"index.html")
+    z.write("/mnt/data/animeos_tasks_premium/README.txt","README.txt")
+print("updated",len(s.splitlines()))
