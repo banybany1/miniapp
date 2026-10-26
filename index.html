@@ -2,73 +2,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>✨ High Graphics 3D Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>✨ Neon 3D</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
-               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-               -webkit-tap-highlight-color: transparent; }
-  #bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
-  .blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
-          filter: blur(80px); opacity: .55; mix-blend-mode: screen;
-          animation: drift 18s ease-in-out infinite; }
-  .blob:nth-child(1){ background:#0066ff; top:-20%; left:-20%; animation-delay:0s;}
-  .blob:nth-child(2){ background:#ff3399; bottom:-30%; right:-20%; animation-delay:-6s;}
-  .blob:nth-child(3){ background:#00ffaa; top:20%; right:-10%; animation-delay:-12s; width:40vmax; height:40vmax;}
-  .blob:nth-child(4){ background:#9933ff; bottom:0; left:10%; animation-delay:-9s; width:35vmax; height:35vmax;}
+  :root {
+    --tg-bg: var(--tg-theme-bg-color, #0a0a12);
+    --tg-text: var(--tg-theme-text-color, #ffffff);
+    --tg-hint: var(--tg-theme-hint-color, #8b8b99);
+    --tg-link: var(--tg-theme-link-color, #64b5ff);
+    --tg-btn: var(--tg-theme-button-color, #2ea6ff);
+    --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
+    --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #1c1c28);
+    --accent-1: #00e5ff;
+    --accent-2: #ff2ea6;
+    --accent-3: #a020ff;
+    --glass-bg: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--tg-bg);
+    color: var(--tg-text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  /* ═══ ANIMATED BG ═══ */
+  #bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .blob {
+    position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+    filter: blur(90px); opacity: .45; mix-blend-mode: screen;
+    animation: drift 20s ease-in-out infinite;
+  }
+  .blob:nth-child(1){ background:#0066ff; top:-30%; left:-25%; }
+  .blob:nth-child(2){ background:#ff0099; bottom:-35%; right:-25%; animation-delay:-7s;}
+  .blob:nth-child(3){ background:#00ffcc; top:15%; right:-15%; animation-delay:-13s; width:45vmax; height:45vmax;}
+  .blob:nth-child(4){ background:#7a00ff; bottom:5%; left:5%; animation-delay:-10s; width:40vmax; height:40vmax;}
   @keyframes drift {
     0%,100% { transform: translate(0,0) scale(1); }
-    33%     { transform: translate(8vw,-6vh) scale(1.15); }
-    66%     { transform: translate(-6vw,8vh) scale(.9); }
+    50%     { transform: translate(10vw,-8vh) scale(1.18); }
   }
+
+  /* ═══ CANVAS ═══ */
   #canvas-wrap { position: fixed; inset: 0; z-index: 1; }
-  canvas { display:block; width:100%!important; height:100%!important; touch-action:none; }
+  canvas { display: block !important; width: 100% !important; height: 100% !important; touch-action: none; }
 
-  /* TOP BAR */
-  #topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 10;
-            display:flex; justify-content:space-between; align-items:center;
-            padding: 14px 18px; pointer-events:none; }
-  #title { color:#fff; font-weight:800; font-size:16px; letter-spacing:.5px;
-           text-shadow: 0 0 14px rgba(0,200,255,.8); }
-  #musicBtn { pointer-events:auto; width:44px; height:44px; border-radius:50%;
-              border:1px solid rgba(255,255,255,.25);
-              background: rgba(255,255,255,.08); backdrop-filter: blur(14px);
-              color:#fff; font-size:18px; cursor:pointer;
-              display:flex; align-items:center; justify-content:center;
-              transition: transform .15s, background .2s; }
-  #musicBtn:active { transform: scale(.92); }
-  #musicBtn.off   { opacity:.6; }
-
-  /* ACTION GRID */
-  #actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-             display:grid; grid-template-columns: repeat(2, 1fr);
-             gap: 10px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
-             max-width: 520px; margin: 0 auto; }
-  .btn { position: relative; color:#fff; font-weight:700; font-size:14px;
-         padding: 14px 8px; border-radius:14px; border:1px solid rgba(255,255,255,.22);
-         background: linear-gradient(135deg, rgba(0,200,255,.30), rgba(180,0,255,.30));
-         backdrop-filter: blur(14px); cursor:pointer; overflow:hidden;
-         transition: transform .12s ease, box-shadow .25s; user-select:none; }
-  .btn:active { transform: scale(.95); box-shadow: 0 0 24px rgba(0,200,255,.6); }
-  .btn::after { content:''; position:absolute; inset:0;
-                background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), transparent 60%);
-                opacity:0; transition: opacity .25s; }
-  .btn:active::after { opacity:1; }
-
-  /* LOADING */
-  #loader { position: fixed; inset:0; z-index: 100; background:#000;
-            display:flex; align-items:center; justify-content:center;
-            color:#fff; font-weight:700; font-size:16px; letter-spacing:2px;
-            transition: opacity .6s ease; }
-  #loader.hide { opacity:0; pointer-events:none; }
-  #loader span { animation: pulse 1.2s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
-
-  @media (max-width: 480px) {
-    .btn { font-size: 13px; padding: 12px 6px; }
-    #title { font-size: 14px; }
+  /* ═══ TOP BAR (user profile) ═══ */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px;
+    padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
+    pointer-events: none;
   }
+  #avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #fff;
+    border: 2px solid rgba(255,255,255,.3);
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0,229,255,.5);
+  }
+  #avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  #userinfo { flex: 1; min-width: 0; }
+  #username {
+    font-size: 15px; font-weight: 700; letter-spacing: -.2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    text-shadow: 0 0 10px rgba(0,229,255,.4);
+  }
+  #userstatus {
+    font-size: 11px; color: var(--tg-hint); margin-top: 1px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  #userstatus::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #00ff88; box-shadow: 0 0 8px #00ff88;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  #musicBtn {
+    pointer-events: auto;
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--tg-text); font-size: 17px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .15s, box-shadow .25s;
+  }
+  #musicBtn:active { transform: scale(.9); }
+  #musicBtn.on { box-shadow: 0 0 20px rgba(0,229,255,.6); }
+  #musicBtn.off { opacity: .5; }
+
+  /* ═══ ACTION PILLS (horizontal scroll) ═══ */
+  #pills {
+    position: fixed; left: 0; right: 0; bottom: calc(90px + env(safe-area-inset-bottom));
+    z-index: 10;
+    display: flex; gap: 8px; padding: 0 16px;
+    overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none; -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
+  }
+  #pills::-webkit-scrollbar { display: none; }
+  .pill {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border-radius: 22px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--tg-text);
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition: transform .12s, box-shadow .2s, background .2s;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pill:active {
+    transform: scale(.94);
+    background: linear-gradient(135deg, rgba(0,229,255,.35), rgba(255,46,166,.35));
+    box-shadow: 0 0 24px rgba(0,229,255,.5);
+  }
+  .pill .ico { font-size: 15px; }
+
+  /* ═══ BOTTOM BAR (Telegram-style) ═══ */
+  #bottom {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--tg-bg) 30%, transparent);
+    display: flex; gap: 10px;
+  }
+  #mainBtn {
+    flex: 1;
+    padding: 15px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: #fff;
+    font-size: 15px; font-weight: 800;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(0,229,255,.35), 0 0 40px rgba(255,46,166,.25);
+    transition: transform .12s, box-shadow .25s;
+  }
+  #mainBtn:active {
+    transform: scale(.97);
+    box-shadow: 0 4px 16px rgba(0,229,255,.5);
+  }
+
+  /* ═══ LOADER ═══ */
+  #loader {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--tg-bg);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 18px;
+    transition: opacity .6s ease;
+  }
+  #loader.hide { opacity: 0; pointer-events: none; }
+  #loader .ring {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.1);
+    border-top-color: var(--accent-1);
+    border-right-color: var(--accent-2);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loader p {
+    font-size: 13px; letter-spacing: 4px; font-weight: 700;
+    color: var(--tg-hint);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  /* ═══ TOAST ═══ */
+  #toast {
+    position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%) translateY(20px);
+    z-index: 50;
+    padding: 10px 20px; border-radius: 14px;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(20px);
+    color: #fff; font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s, transform .3s;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -82,23 +209,41 @@
 
 <div id="canvas-wrap"></div>
 
+<!-- TOP BAR -->
 <div id="topbar">
-  <div id="title">✨ HIGH GFX DEMO</div>
-  <button id="musicBtn" title="Toggle Music">🔊</button>
+  <div id="avatar">?</div>
+  <div id="userinfo">
+    <div id="username">Loading...</div>
+    <div id="userstatus">online</div>
+  </div>
+  <button id="musicBtn" class="off">🔇</button>
 </div>
 
-<div id="actions">
-  <button class="btn" data-action="explode">💥 Explode</button>
-  <button class="btn" data-action="vortex">🌀 Vortex</button>
-  <button class="btn" data-action="shock">🌊 Shockwave</button>
-  <button class="btn" data-action="color">🎨 Color</button>
-  <button class="btn" data-action="pulse">💓 Pulse</button>
-  <button class="btn" data-action="gravity">🪐 Gravity</button>
-  <button class="btn" data-action="shake">📳 Shake</button>
-  <button class="btn" data-action="reset">🔄 Reset</button>
+<!-- ACTION PILLS -->
+<div id="pills">
+  <div class="pill" data-action="explode"><span class="ico">💥</span>Explode</div>
+  <div class="pill" data-action="vortex"><span class="ico">🌀</span>Vortex</div>
+  <div class="pill" data-action="shock"><span class="ico">🌊</span>Shock</div>
+  <div class="pill" data-action="color"><span class="ico">🎨</span>Color</div>
+  <div class="pill" data-action="pulse"><span class="ico">💓</span>Pulse</div>
+  <div class="pill" data-action="gravity"><span class="ico">🪐</span>Gravity</div>
+  <div class="pill" data-action="shake"><span class="ico">📳</span>Shake</div>
+  <div class="pill" data-action="reset"><span class="ico">🔄</span>Reset</div>
 </div>
 
-<div id="loader"><span>LOADING…</span></div>
+<!-- BOTTOM BAR -->
+<div id="bottom">
+  <button id="mainBtn">⚡ TRIGGER MAGIC</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ring"></div>
+  <p>NEON</p>
+</div>
 
 <script type="importmap">
 {
@@ -118,7 +263,53 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { Reflector } from 'three/addons/objects/Reflector.js';
 
 /* ══════════════════════════════════════════════
-   1. RENDERER
+   1. TELEGRAM WEBAPP
+   ══════════════════════════════════════════════ */
+const tg = window.Telegram?.WebApp;
+let tgUser = { first_name: 'Guest', last_name: '', username: 'guest', photo_url: '' };
+let hapticsOn = true;
+
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('secondary_bg_color');
+  tg.setBackgroundColor('bg_color');
+
+  if (tg.initDataUnsafe?.user) {
+    tgUser = tg.initDataUnsafe.user;
+  }
+
+  // Disable vertical swipe to close (keep the scene free for drag)
+  if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+}
+
+function haptic(type = 'light') {
+  if (!tg?.HapticFeedback) return;
+  try {
+    if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+    else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+    else if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
+    else tg.HapticFeedback.impactOccurred('light');
+  } catch (e) {}
+}
+
+/* ══════════════════════════════════════════════
+   2. USER INFO
+   ══════════════════════════════════════════════ */
+const avatarEl = document.getElementById('avatar');
+const usernameEl = document.getElementById('username');
+
+if (tgUser.photo_url) {
+  avatarEl.innerHTML = `<img src="${tgUser.photo_url}" alt="">`;
+} else {
+  avatarEl.textContent = (tgUser.first_name || 'G')[0].toUpperCase();
+}
+
+const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ');
+usernameEl.textContent = fullName || tgUser.username || 'Guest';
+
+/* ══════════════════════════════════════════════
+   3. RENDERER
    ══════════════════════════════════════════════ */
 const container = document.getElementById('canvas-wrap');
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -130,7 +321,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 container.appendChild(renderer.domElement);
 
 /* ══════════════════════════════════════════════
-   2. SCENE + CAMERA
+   4. SCENE + CAMERA
    ══════════════════════════════════════════════ */
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
@@ -143,10 +334,9 @@ controls.enablePan = false;
 controls.minDistance = 4;
 controls.maxDistance = 12;
 controls.target.set(0, 0.2, 0);
-controls.autoRotate = false;
 
 /* ══════════════════════════════════════════════
-   3. ENVIRONMENT (for reflections)
+   5. ENVIRONMENT
    ══════════════════════════════════════════════ */
 function makeEnvTexture() {
   const c = document.createElement('canvas');
@@ -159,7 +349,6 @@ function makeEnvTexture() {
   grad.addColorStop(1,   '#000000');
   g.fillStyle = grad;
   g.fillRect(0, 0, 1024, 512);
-  // hot spots
   const spots = [[180,120,'#00ffff'],[600,180,'#ff00aa'],[850,380,'#ffaa00']];
   for (const [x,y,col] of spots) {
     const rg = g.createRadialGradient(x,y,0,x,y,180);
@@ -173,11 +362,10 @@ function makeEnvTexture() {
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
-const envTex = makeEnvTexture();
-scene.environment = envTex;
+scene.environment = makeEnvTexture();
 
 /* ══════════════════════════════════════════════
-   4. LIGHTS
+   6. LIGHTS
    ══════════════════════════════════════════════ */
 scene.add(new THREE.AmbientLight(0x404060, 0.8));
 
@@ -196,17 +384,13 @@ fillLight.position.set(4, 2, 4);
 scene.add(fillLight);
 
 /* ══════════════════════════════════════════════
-   5. HERO TORUS KNOT (metallic)
+   7. HERO TORUS KNOT
    ══════════════════════════════════════════════ */
 const heroGeo = new THREE.TorusKnotGeometry(1.3, 0.42, 300, 48, 2, 3);
 const heroMat = new THREE.MeshPhysicalMaterial({
-  color: 0x1188ee,
-  metalness: 1.0,
-  roughness: 0.10,
-  clearcoat: 1.0,
-  clearcoatRoughness: 0.05,
-  emissive: 0x004488,
-  emissiveIntensity: 0.35,
+  color: 0x1188ee, metalness: 1.0, roughness: 0.10,
+  clearcoat: 1.0, clearcoatRoughness: 0.05,
+  emissive: 0x004488, emissiveIntensity: 0.35,
   envMapIntensity: 1.8
 });
 const hero = new THREE.Mesh(heroGeo, heroMat);
@@ -214,7 +398,7 @@ hero.castShadow = true;
 scene.add(hero);
 
 /* ══════════════════════════════════════════════
-   6. ORBITING NEON SPHERES
+   8. NEON SPHERES
    ══════════════════════════════════════════════ */
 const spheres = [];
 const spherePivots = [];
@@ -225,12 +409,8 @@ for (let i = 0; i < sphereCount; i++) {
   const hue = i / sphereCount;
   const col = new THREE.Color().setHSL(hue, 0.9, 0.55);
   const mat = new THREE.MeshPhysicalMaterial({
-    color: col,
-    metalness: 0.7,
-    roughness: 0.2,
-    emissive: col,
-    emissiveIntensity: 0.9,
-    envMapIntensity: 1.4
+    color: col, metalness: 0.7, roughness: 0.2,
+    emissive: col, emissiveIntensity: 0.9, envMapIntensity: 1.4
   });
   const s = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 32), mat);
   s.castShadow = true;
@@ -247,7 +427,7 @@ for (let i = 0; i < sphereCount; i++) {
 }
 
 /* ══════════════════════════════════════════════
-   7. SPARK PARTICLES
+   9. SPARK PARTICLES
    ══════════════════════════════════════════════ */
 const PARTICLE_COUNT = 800;
 const particleGeo = new THREE.BufferGeometry();
@@ -256,7 +436,6 @@ const velocities = new Float32Array(PARTICLE_COUNT * 3);
 const colors    = new Float32Array(PARTICLE_COUNT * 3);
 
 for (let i = 0; i < PARTICLE_COUNT; i++) {
-  // start inside torus radius
   const a = Math.random() * Math.PI * 2;
   const r = 1.6 + Math.random() * 0.4;
   positions[i*3]   = Math.cos(a) * r;
@@ -268,31 +447,21 @@ for (let i = 0; i < PARTICLE_COUNT; i++) {
   velocities[i*3+2] = (Math.random() - 0.5) * 0.8;
 
   const c = new THREE.Color().setHSL(0.06 + Math.random()*0.08, 1, 0.6);
-  colors[i*3]   = c.r;
-  colors[i*3+1] = c.g;
-  colors[i*3+2] = c.b;
+  colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
 }
-
 particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-const particleMat = new THREE.PointsMaterial({
-  size: 0.06,
-  vertexColors: true,
-  transparent: true,
-  opacity: 0.9,
-  blending: THREE.AdditiveBlending,
-  depthWrite: false,
-  sizeAttenuation: true
-});
-const particles = new THREE.Points(particleGeo, particleMat);
+const particles = new THREE.Points(particleGeo, new THREE.PointsMaterial({
+  size: 0.06, vertexColors: true, transparent: true, opacity: 0.9,
+  blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+}));
 scene.add(particles);
 
 /* ══════════════════════════════════════════════
-   8. REFLECTIVE FLOOR
+   10. REFLECTIVE FLOOR
    ══════════════════════════════════════════════ */
-const mirrorGeo = new THREE.PlaneGeometry(30, 30);
-const mirror = new Reflector(mirrorGeo, {
+const mirror = new Reflector(new THREE.PlaneGeometry(30, 30), {
   clipBias: 0.003,
   textureWidth: window.innerWidth * Math.min(devicePixelRatio, 2),
   textureHeight: window.innerHeight * Math.min(devicePixelRatio, 2),
@@ -302,68 +471,46 @@ mirror.rotation.x = -Math.PI / 2;
 mirror.position.y = -2.0;
 scene.add(mirror);
 
-// subtle grid overlay on floor
-const gridGeo = new THREE.PlaneGeometry(30, 30);
-const gridMat = new THREE.MeshBasicMaterial({
-  color: 0x224466, transparent: true, opacity: 0.15
-});
-const grid = new THREE.Mesh(gridGeo, gridMat);
-grid.rotation.x = -Math.PI / 2;
-grid.position.y = -1.999;
-scene.add(grid);
-
 /* ══════════════════════════════════════════════
-   9. POST-PROCESSING (HDR Bloom)
+   11. POST-PROCESSING
    ══════════════════════════════════════════════ */
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-
 const bloom = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  1.1,   // strength
-  0.5,   // radius
-  0.55   // threshold
+  1.1, 0.5, 0.55
 );
 composer.addPass(bloom);
 
 /* ══════════════════════════════════════════════
-   10. ANIMATION STATE
+   12. STATE + ACTIONS
    ══════════════════════════════════════════════ */
 const clock = new THREE.Clock();
 const state = {
-  explodeT: 0, vortexT: 0, pulseT: 0, gravityT: 0, shakeT: 0,
+  explodeT: 0, pulseT: 0, gravityT: 0, shakeT: 0,
   vortexActive: false,
   sphereOriginals: spheres.map(s => s.position.clone()),
 };
 
-/* ══════════════════════════════════════════════
-   11. ACTIONS
-   ══════════════════════════════════════════════ */
-function explode() {
-  state.explodeT = 1.0;
-}
-function vortex() {
-  state.vortexActive = !state.vortexActive;
-  state.vortexT = 3.0;
-}
-function shockwave() {
-  const ringGeo = new THREE.TorusGeometry(0.15, 0.06, 16, 64);
+function explode()    { state.explodeT = 1.0; haptic('medium'); }
+function vortex()     { state.vortexActive = !state.vortexActive; haptic('medium'); }
+function shockwave()  {
   const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.06, 16, 64), ringMat);
   ring.position.copy(hero.position);
   ring.rotation.x = Math.PI / 2;
   scene.add(ring);
-
   let t = 0;
   const grow = () => {
     t += 0.02;
-    if (t > 1) { scene.remove(ring); return; }
+    if (t > 1) { scene.remove(ring); ringMat.dispose(); return; }
     const s = 1 + t * 14;
     ring.scale.set(s, s, s);
     ringMat.opacity = 1 - t;
     requestAnimationFrame(grow);
   };
   grow();
+  haptic('medium');
 }
 function colorShift() {
   const hue = Math.random();
@@ -374,218 +521,54 @@ function colorShift() {
     s.material.color.copy(c);
     s.material.emissive.copy(c);
   }
+  haptic('light');
 }
-function pulse() {
-  state.pulseT = 1.0;
-}
-function gravity() {
-  state.gravityT = 1.0;
-}
-function shake() {
-  state.shakeT = 0.6;
-}
+function pulse()   { state.pulseT = 1.0; haptic('light'); }
+function gravity() { state.gravityT = 1.0; haptic('medium'); }
+function shake()   { state.shakeT = 0.6; haptic('medium'); }
 function reset() {
-  state.explodeT = state.vortexT = state.pulseT = state.gravityT = state.shakeT = 0;
+  state.explodeT = state.pulseT = state.gravityT = state.shakeT = 0;
   state.vortexActive = false;
   hero.scale.set(1, 1, 1);
   hero.rotation.set(0, 0, 0);
-  spheres.forEach((s, i) => {
-    s.position.copy(state.sphereOriginals[i]);
-  });
+  spheres.forEach((s, i) => s.position.copy(state.sphereOriginals[i]));
+  haptic('success');
+  showToast('✨ Reset complete');
 }
 
-const actions = {
-  explode, vortex, shock: shockwave, color: colorShift,
-  pulse, gravity, shake, reset
-};
+const actions = { explode, vortex, shock: shockwave, color: colorShift,
+                  pulse, gravity, shake, reset };
 
-document.querySelectorAll('.btn').forEach(btn => {
+/* ══════════════════════════════════════════════
+   13. UI BINDINGS
+   ══════════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+document.querySelectorAll('.pill').forEach(btn => {
   btn.addEventListener('click', () => {
     const a = btn.dataset.action;
     if (actions[a]) actions[a]();
-    if (navigator.vibrate) navigator.vibrate(20);
   });
 });
 
-/* ══════════════════════════════════════════════
-   12. BACKGROUND MUSIC (Web Audio ambient pad)
-   ══════════════════════════════════════════════ */
-let audioCtx = null;
-let masterGain = null;
-let musicOn = false;
-const musicBtn = document.getElementById('musicBtn');
-
-function startMusic() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.08;
-    masterGain.connect(audioCtx.destination);
-
-    // Open fifth pad: E2 A2 E3 A3 (165, 220, 330, 440 Hz)
-    [165, 220, 330, 440].forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
-      const oscGain = audioCtx.createGain();
-      const lfo = audioCtx.createOscillator();
-      const lfoGain = audioCtx.createGain();
-
-      osc.type = i % 2 === 0 ? 'sine' : 'triangle';
-      osc.frequency.value = freq;
-
-      lfo.frequency.value = 0.25 + i * 0.07;
-      lfoGain.gain.value = 1.5;
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      lfo.start();
-
-      // slow tremolo
-      const trem = audioCtx.createOscillator();
-      const tremGain = audioCtx.createGain();
-      trem.frequency.value = 0.15 + i * 0.04;
-      tremGain.gain.value = 0.4;
-      trem.connect(tremGain);
-      tremGain.connect(oscGain.gain);
-
-      oscGain.gain.value = 0.5;
-      osc.connect(oscGain);
-      oscGain.connect(masterGain);
-
-      osc.start();
-      trem.start();
-    });
-  }
-  audioCtx.resume();
-  musicOn = true;
-  musicBtn.textContent = '🔊';
-  musicBtn.classList.remove('off');
-}
-
-function stopMusic() {
-  if (audioCtx) audioCtx.suspend();
-  musicOn = false;
-  musicBtn.textContent = '🔇';
-  musicBtn.classList.add('off');
-}
-
-musicBtn.addEventListener('click', () => {
-  if (musicOn) stopMusic(); else startMusic();
+// Main button cycles through actions
+const mainBtn = document.getElementById('mainBtn');
+const cycle = ['explode', 'shock', 'pulse', 'color', 'vortex', 'gravity', 'shake', 'reset'];
+let cycleIdx = 0;
+mainBtn.addEventListener('click', () => {
+  const a = cycle[cycleIdx % cycle.length];
+  cycleIdx++;
+  actions[a]();
+  showToast(a.toUpperCase() + ' activated');
 });
 
-// Auto-start on first user interaction (mobile requires gesture)
-document.body.addEventListener('pointerdown', () => {
-  if (!audioCtx && !musicOn) startMusic();
-}, { once: true });
-
-/* ══════════════════════════════════════════════
-   13. RENDER LOOP
-   ══════════════════════════════════════════════ */
-function animate() {
-  requestAnimationFrame(animate);
-  const dt = clock.getDelta();
-  const t  = clock.getElapsedTime();
-
-  // Hero base rotation + float
-  hero.rotation.y += dt * 0.6;
-  hero.rotation.x = Math.sin(t * 0.5) * 0.15;
-  hero.position.y = Math.sin(t * 0.8) * 0.3;
-
-  // Pulse
-  if (state.pulseT > 0) {
-    state.pulseT -= dt * 3;
-    const s = 1 + Math.max(0, state.pulseT) * 0.4 * Math.abs(Math.sin(t * 20));
-    hero.scale.setScalar(s);
-  } else {
-    hero.scale.lerp(new THREE.Vector3(1,1,1), dt * 6);
-  }
-
-  // Explode
-  if (state.explodeT > 0) {
-    state.explodeT -= dt * 2;
-    spheres.forEach((s, i) => {
-      const dir = state.sphereOriginals[i].clone().normalize();
-      const k = Math.max(0, state.explodeT);
-      s.position.copy(state.sphereOriginals[i]).addScaledVector(dir, k * 3);
-    });
-    hero.scale.setScalar(1 + state.explodeT * 0.6);
-  }
-
-  // Vortex
-  if (state.vortexActive) {
-    spheres.forEach((s, i) => {
-      const p = spherePivots[i];
-      p.rotation.y += dt * (4 + i * 0.3);
-      p.rotation.x += dt * 2;
-    });
-  } else {
-    spherePivots.forEach((p, i) => {
-      p.rotation.y += dt * (0.3 + i * 0.05);
-    });
-  }
-
-  // Gravity
-  if (state.gravityT > 0) {
-    state.gravityT -= dt * 1.5;
-    const k = Math.max(0, state.gravityT);
-    spheres.forEach((s, i) => {
-      const target = new THREE.Vector3(0, 0, 0);
-      const orig = state.sphereOriginals[i];
-      s.position.lerpVectors(orig, target, k);
-    });
-  }
-
-  // Shake camera
-  if (state.shakeT > 0) {
-    state.shakeT -= dt;
-    const amp = state.shakeT * 0.4;
-    camera.position.x = (Math.random() - 0.5) * amp;
-    camera.position.y = 2.2 + (Math.random() - 0.5) * amp;
-  }
-
-  // Orbit controls
-  controls.update();
-
-  // Particles
-  const posArr = particleGeo.attributes.position.array;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    posArr[i*3]   += velocities[i*3]   * dt;
-    posArr[i*3+1] += velocities[i*3+1] * dt;
-    posArr[i*3+2] += velocities[i*3+2] * dt;
-
-    // recycle if too high or far
-    const dx = posArr[i*3], dy = posArr[i*3+1], dz = posArr[i*3+2];
-    if (dy > 4 || dx*dx + dz*dz > 25) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 1.6 + Math.random() * 0.4;
-      posArr[i*3]   = Math.cos(a) * r;
-      posArr[i*3+1] = -0.5;
-      posArr[i*3+2] = Math.sin(a) * r;
-    }
-  }
-  particleGeo.attributes.position.needsUpdate = true;
-  particles.rotation.y += dt * 0.1;
-
-  composer.render();
-}
-
-/* ══════════════════════════════════════════════
-   14. RESIZE
-   ══════════════════════════════════════════════ */
-window.addEventListener('resize', () => {
-  const w = window.innerWidth, h = window.innerHeight;
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
-  composer.setSize(w, h);
-  bloom.setSize(w, h);
-});
-
-/* ══════════════════════════════════════════════
-   15. START
-   ══════════════════════════════════════════════ */
-animate();
-
-// hide loader after first frame
-setTimeout(() => document.getElementById('loader').classList.add('hide'), 400);
-</script>
-</body>
-    </html>
+// Telegram MainButton (native button at bottom of Telegram UI — optional)
+if (tg?.MainButton) {
+  try {
+    tg.MainButton.setParams(
