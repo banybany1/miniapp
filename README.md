@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>✨ Neon Mini</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #0a0a12);
+    --text: var(--tg-theme-text-color, #fff);
+    --hint: var(--tg-theme-hint-color, #8b8b99);
+    --acc1: #00e5ff;
+    --acc2: #ff2ea6;
+    --glass: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.14);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;user-select:none;}
+
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .blob{position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(90px);opacity:.4;mix-blend-mode:screen;animation:drift 20s ease-in-out infinite;}
+  .blob:nth-child(1){background:#0066ff;top:-30%;left:-25%;}
+  .blob:nth-child(2){background:#ff0099;bottom:-35%;right:-25%;animation-delay:-7s;}
+  .blob:nth-child(3){background:#00ffcc;top:15%;right:-15%;animation-delay:-13s;width:45vmax;height:45vmax;}
+  @keyframes drift{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(10vw,-8vh) scale(1.18);}}
+
+  #canvas-wrap{position:fixed;inset:0;z-index:1;}
+  canvas{display:block!important;width:100%!important;height:100%!important;touch-action:none;}
+
+  #topbar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:calc(12px + env(safe-area-inset-top)) 18px 12px;pointer-events:none;}
+  #avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--acc1),var(--acc2));
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;
+    border:2px solid rgba(255,255,255,.3);flex-shrink:0;box-shadow:0 0 20px rgba(0,229,255,.5);overflow:hidden;}
+  #avatar img{width:100%;height:100%;object-fit:cover;}
+  #userinfo{flex:1;min-width:0;}
+  #username{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    text-shadow:0 0 10px rgba(0,229,255,.4);}
+  #gems{font-size:14px;color:var(--acc1);font-weight:800;margin-top:2px;}
+
+  #tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;
+    background:rgba(10,10,20,.85);backdrop-filter:blur(20px);
+    border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom);}
+  .tab{flex:1;padding:12px 8px;text-align:center;color:var(--hint);font-size:11px;font-weight:700;
+    cursor:pointer;transition:color .2s;position:relative;}
+  .tab .ico{display:block;font-size:20px;margin-bottom:2px;}
+  .tab.active{color:var(--acc1);}
+  .tab.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+    background:linear-gradient(90deg,var(--acc1),var(--acc2));border-radius:2px;}
+
+  .screen{position:fixed;inset:0;z-index:5;display:none;padding:100px 16px calc(90px + env(safe-area-inset-bottom));
+    overflow-y:auto;background:var(--bg);}
+  .screen.active{display:block;}
+  #game.active{display:block;background:transparent;padding:0;}
+
+  #tapBtn{position:fixed;right:24px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:8;
+    width:110px;height:110px;border-radius:50%;border:3px solid var(--acc1);
+    background:radial-gradient(circle,rgba(0,229,255,.5),rgba(255,46,166,.3));backdrop-filter:blur(10px);
+    color:#fff;font-size:34px;cursor:pointer;
+    box-shadow:0 0 30px rgba(0,229,255,.6),0 0 60px rgba(255,46,166,.3);
+    display:flex;align-items:center;justify-content:center;font-weight:900;
+    transition:transform .08s;}
+  #tapBtn:active{transform:scale(.88);}
+
+  .float{position:fixed;color:var(--acc1);font-weight:900;font-size:22px;pointer-events:none;
+    z-index:100;animation:up 1s ease-out forwards;text-shadow:0 0 10px var(--acc1);}
+  @keyframes up{to{transform:translateY(-100px);opacity:0;}}
+
+  .card{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--border);
+    border-radius:20px;padding:20px;margin-bottom:14px;}
+  .big{font-size:42px;font-weight:900;background:linear-gradient(135deg,var(--acc1),var(--acc2));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
+  .lbl{font-size:12px;color:var(--hint);text-align:center;margin-top:6px;letter-spacing:1px;font-weight:700;}
+  .btn{width:100%;padding:15px;border-radius:16px;border:none;
+    background:linear-gradient(135deg,var(--acc1),var(--acc2));color:#fff;font-size:15px;font-weight:800;
+    cursor:pointer;transition:transform .12s;box-shadow:0 8px 32px rgba(0,229,255,.35);margin-top:10px;}
+  .btn:active{transform:scale(.97);}
+  .btn.sec{background:var(--glass);border:1px solid var(--border);box-shadow:none;}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .price{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:14px 6px;
+    text-align:center;cursor:pointer;transition:transform .12s;}
+  .price:active{transform:scale(.95);border-color:var(--acc1);}
+  .price .amt{font-size:18px;font-weight:900;color:var(--acc1);}
+  .price .prc{font-size:10px;color:var(--hint);margin-top:4px;}
+  .lb-row{display:flex;justify-content:space-between;padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,.05);font-size:14px;}
+
+  #studio{background:#0a0a12;}
+  textarea{width:100%;background:#141420;border:1px solid var(--border);border-radius:12px;
+    color:#aaffee;font-family:'SF Mono',monospace;font-size:12px;padding:12px;
+    resize:vertical;margin-bottom:10px;min-height:140px;line-height:1.5;}
+  input[type=text]{width:100%;background:#141420;border:1px solid var(--border);border-radius:12px;
+    color:#fff;font-family:inherit;font-size:14px;padding:12px;margin-bottom:10px;}
+  .label{font-size:12px;color:var(--hint);font-weight:700;margin:12px 0 6px;letter-spacing:1px;}
+
+  #loader{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;
+    justify-content:center;flex-direction:column;gap:18px;transition:opacity .5s;}
+  #loader.hide{opacity:0;pointer-events:none;}
+  .ring{width:52px;height:52px;border-radius:50%;border:3px solid rgba(255,255,255,.1);
+    border-top-color:var(--acc1);border-right-color:var(--acc2);animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);z-index:50;
+    padding:10px 20px;border-radius:14px;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);
+    color:#fff;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div id="bg"><div class="blob"></div><div class="blob"></div><div class="blob"></div></div>
+<div id="canvas-wrap"></div>
+
+<div id="topbar">
+  <div id="avatar">?</div>
+  <div id="userinfo">
+    <div id="username">Loading...</div>
+    <div id="gems">💎 0</div>
+  </div>
+</div>
+
+<button id="tapBtn">💎</button>
+
+<div class="screen" id="game"></div>
+
+<div class="screen" id="wallet">
+  <div class="card">
+    <div class="big" id="wBalance">0</div>
+    <div class="lbl">GEMS BALANCE</div>
+  </div>
+  <div class="card">
+    <div class="label">💳 ADD GEMS (Demo)</div>
+    <div class="row">
+      <div class="price" data-amt="100"><div class="amt">100</div><div class="prc">🪙 10 ⭐</div></div>
+      <div class="price" data-amt="500"><div class="amt">500</div><div class="prc">🪙 45 ⭐</div></div>
+      <div class="price" data-amt="1500"><div class="amt">1500</div><div class="prc">🪙 120 ⭐</div></div>
+    </div>
+    <p style="font-size:11px;color:var(--hint);margin-top:12px;text-align:center;">
+      ⚠️ Real payment পরে যোগ হবে
+    </p>
+  </div>
+  <div class="card">
+    <div class="label">🏆 TOP PLAYERS</div>
+    <div id="lbList" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<div class="screen" id="studio">
+  <div class="card">
+    <div class="label">🎮 GAME TITLE</div>
+    <input type="text" id="studioTitle" placeholder="Neon 3D" />
+
+    <div class="label">🎨 CUSTOM CSS (live inject)</div>
+    <textarea id="studioCss" placeholder="/* body { background: #000 !important; } */"></textarea>
+
+    <div class="label">⚙️ CUSTOM JS (live inject)</div>
+    <textarea id="studioJs" placeholder="// console.log('hello')"></textarea>
+
+    <button class="btn" id="saveBtn">💾 SAVE & DEPLOY</button>
+    <button class="btn sec" id="reloadBtn">🔄 RELOAD</button>
+
+    <div class="label" style="margin-top:20px;">👥 ALL USERS (<span id="userCount">0</span>)</div>
+    <div id="usersList" style="max-height:300px;overflow-y:auto;font-size:13px;"></div>
+  </div>
+</div>
+
+<div id="tabs">
+  <div class="tab active" data-tab="game"><span class="ico">🎮</span>Play</div>
+  <div class="tab" data-tab="wallet"><span class="ico">💎</span>Wallet</div>
+  <div class="tab" data-tab="studio" id="studioTab" style="display:none;"><span class="ico">🛠️</span>Studio</div>
+</div>
+
+<div id="toast"></div>
+<div id="loader"><div class="ring"></div><div style="color:var(--hint);font-size:12px;letter-spacing:4px;font-weight:700;">NEON</div></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://esm.sh/three@0.160.0",
+  "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+
+// ══════════════════════════════════════════════
+// 🔧 CONFIG — এখানে তোমার ডেটা বসানো হয়েছে
+// ══════════════════════════════════════════════
+const SUPABASE_URL  = 'https://xoflooyokrapfqpflilc.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvZmxvb3lva3JhcGZxcGZsaWxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5OTQ4MjEsImV4cCI6MjEwODU3MDgyMX0.9caiD_W4z2Q7DPWF9tGIGLtV0GcFB9gFpwZfjp9AD04';
+
+// ⚠️ এখানে তোমার টেলিগ্রাম ID বসাও (@userinfobot থেকে বের করা আইডি)
+const ADMIN_TG_ID   = 123456789; 
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const tg = window.Telegram?.WebApp;
+const tgUser = tg?.initDataUnsafe?.user || { id: 0, first_name: 'Guest', username: 'guest', photo_url: '' };
+const IS_ADMIN = Number(tgUser.id) === Number(ADMIN_TG_ID);
+
+let ME = null;
+
+function toast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 1500);
+}
+function haptic(k='light') {
+  if (!tg?.HapticFeedback) return;
+  try {
+    if (k === 'success') tg.HapticFeedback.notificationOccurred('success');
+    else tg.HapticFeedback.impactOccurred(k);
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+async function boot() {
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('secondary_bg_color');
+    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+  }
+
+  const av = document.getElementById('avatar');
+  if (tgUser.photo_url) av.innerHTML = `<img src="${tgUser.photo_url}">`;
+  else av.textContent = (tgUser.first_name || 'G')[0].toUpperCase();
+
+  const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username || 'Guest';
+  document.getElementById('username').textContent = fullName;
+
+  try {
+    if (!tgUser.id) { throw new Error('No Telegram user (open in Telegram)'); }
+
+    let { data: user, error } = await sb.from('users')
+      .select('*').eq('tg_id', tgUser.id).maybeSingle();
+    if (error) throw error;
+
+    if (!user) {
+      const ins = await sb.from('users').insert({
+        tg_id: tgUser.id,
+        name: fullName,
+        username: tgUser.username,
+        photo: tgUser.photo_url,
+        gems: 100, power: 1, taps: 0
+      }).select().single();
+      if (ins.error) throw ins.error;
+      user = ins.data;
+    }
+    ME = user;
+    updateGems(user.gems);
+    if (IS_ADMIN) document.getElementById('studioTab').style.display = '';
+
+    const { data: cfg } = await sb.from('config').select('*').eq('key', 'site').maybeSingle();
+    if (cfg) applyConfig(cfg);
+
+    document.getElementById('loader').classList.add('hide');
+  } catch (e) {
+    console.error(e);
+    document.getElementById('loader').innerHTML =
+      `<div style="color:#ff5555;padding:20px;text-align:center;font-size:13px;line-height:1.6;">
+        ❌ Error<br><br><span style="color:#888">${e.message}</span>
+      </div>`;
+  }
+}
+
+function updateGems(n) {
+  document.getElementById('gems').textContent = '💎 ' + n.toLocaleString();
+  document.getElementById('wBalance').textContent = n.toLocaleString();
+}
+
+function applyConfig(cfg) {
+  if (cfg.css) {
+    let s = document.getElementById('dynCss');
+    if (!s) { s = document.createElement('style'); s.id = 'dynCss'; document.head.appendChild(s); }
+    s.textContent = cfg.css;
+  }
+  if (cfg.js) { try { new Function(cfg.js)(); } catch(e) { console.warn('custom js:', e); } }
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const name = t.dataset.tab;
+    document.getElementById(name).classList.add('active');
+    document.getElementById('canvas-wrap').style.display = (name === 'game') ? 'block' : 'none';
+    document.getElementById('tapBtn').style.display = (name === 'game') ? 'flex' : 'none';
+    if (name === 'wallet') loadLeaderboard();
+    if (name === 'studio') loadStudio();
+    haptic('light');
+  });
+});
+
+// ══════════════════════════════════════════════
+// TAP GAME
+// ══════════════════════════════════════════════
+const tapBtn = document.getElementById('tapBtn');
+let busy = false;
+tapBtn.addEventListener('click', async (e) => {
+  if (busy || !ME) return;
+  busy = true;
+
+  const f = document.createElement('div');
+  f.className = 'float';
+  f.textContent = '+' + (ME.power || 1);
+  f.style.left = (e.clientX - 20) + 'px';
+  f.style.top = (e.clientY - 30) + 'px';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+  haptic('medium');
+
+  const newGems  = ME.gems  + (ME.power || 1);
+  const newTaps  = ME.taps  + 1;
+
+  const { error } = await sb.from('users')
+    .update({ gems: newGems, taps: newTaps })
+    .eq('tg_id', ME.tg_id);
+
+  if (!error) {
+    ME.gems = newGems;
+    ME.taps = newTaps;
+    updateGems(newGems);
+  } else {
+    toast('❌ ' + error.message);
+  }
+  busy = false;
+});
+
+// ══════════════════════════════════════════════
+// WALLET
+// ══════════════════════════════════════════════
+document.querySelectorAll('.price').forEach(p => {
+  p.addEventListener('click', async () => {
+    if (!ME) return;
+    const amt = parseInt(p.dataset.amt);
+    const newGems = ME.gems + amt;
+    const { error } = await sb.from('users').update({ gems: newGems }).eq('tg_id', ME.tg_id);
+    if (error) { toast('❌ ' + error.message); return; }
+    ME.gems = newGems;
+    updateGems(newGems);
+    toast('✅ +' + amt + ' gems');
+    haptic('success');
+  });
+});
+
+async function loadLeaderboard() {
+  const { data, error } = await sb.from('users').select('name, gems, power').order('gems', { ascending: false }).limit(20);
+  const el = document.getElementById('lbList');
+  if (error || !data || !data.length) {
+    el.innerHTML = '<div style="color:var(--hint);text-align:center;padding:20px;">No players</div>';
+    return;
+  }
+  el.innerHTML = data.map((u, i) =>
+    `<div class="lb-row"><span>${i+1}. ${u.name || 'Anon'}</span><span style="color:var(--acc1);font-weight:800;">💎 ${u.gems}</span></div>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════
+// STUDIO (admin only)
+// ══════════════════════════════════════════════
+async function loadStudio() {
+  if (!IS_ADMIN) return;
+  const { data: cfg } = await sb.from('config').select('*').eq('key', 'site').maybeSingle();
+  if (cfg) {
+    document.getElementById('studioTitle').value = cfg.title || '';
+    document.getElementById('studioCss').value = cfg.css || '';
+    document.getElementById('studioJs').value = cfg.js || '';
+  }
+  const { data: us } = await sb.from('users').select('tg_id, name, gems, power').order('gems', { ascending: false }).limit(200);
+  document.getElementById('userCount').textContent = us?.length || 0;
+  document.getElementById('usersList').innerHTML = (us || []).map(u =>
+    `<div class="lb-row"><span>${u.name || u.tg_id}</span><span style="color:var(--acc1);">💎${u.gems} · ⚡${u.power}</span></div>`
+  ).join('');
+}
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  if (!IS_ADMIN) return;
+  const payload = {
+    key: 'site',
+    title: document.getElementById('studioTitle').value,
+    css: document.getElementById('studioCss').value,
+    js: document.getElementById('studioJs').value,
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('config').upsert(payload);
+  if (error) { toast('❌ ' + error.message); return; }
+  toast('✅ Saved!');
+  haptic('success');
+  applyConfig(payload);
+});
+
+document.getElementById('reloadBtn').addEventListener('click', loadStudio);
+
+// ══════════════════════════════════════════════
+// 3D SCENE
+// ══════════════════════════════════════════════
+const container = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 2.2, 7);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.enablePan = false;
+controls.minDistance = 4; controls.maxDistance = 12;
+
+function envTex() {
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+  const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0,0,1024,512);
+  gr.addColorStop(0,'#050520'); gr.addColorStop(.4,'#0066ff'); gr.addColorStop(.7,'#ff3399'); gr.addColorStop(1,'#000');
+  g.fillStyle = gr; g.fillRect(0,0,1024,512);
+  [[180,120,'#00ffff'],[600,180,'#ff00aa'],[850,380,'#ffaa00']].forEach(([x,y,c])=>{
+    const rg = g.createRadialGradient(x,y,0,x,y,180);
+    rg.addColorStop(0,c); rg.addColorStop(1,'transparent');
+    g.fillStyle = rg; g.fillRect(x-180,y-180,360,360);
+  });
+  const t = new THREE.CanvasTexture(c);
+  t.mapping = THREE.EquirectangularReflectionMapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+scene.environment = envTex();
+
+scene.add(new THREE.AmbientLight(0x404060, .8));
+const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(5,8,5); scene.add(key);
+const rim = new THREE.PointLight(0xff3388, 40, 20); rim.position.set(-4,3,-4); scene.add(rim);
+const fill = new THREE.PointLight(0x00aaff, 40, 20); fill.position.set(4,2,4); scene.add(fill);
+
+con
