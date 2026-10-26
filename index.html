@@ -1,532 +1,591 @@
-import SwiftUI
-import SceneKit
-import AVFoundation
-import Combine
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>✨ High Graphics 3D Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+               -webkit-tap-highlight-color: transparent; }
+  #bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+  .blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
+          filter: blur(80px); opacity: .55; mix-blend-mode: screen;
+          animation: drift 18s ease-in-out infinite; }
+  .blob:nth-child(1){ background:#0066ff; top:-20%; left:-20%; animation-delay:0s;}
+  .blob:nth-child(2){ background:#ff3399; bottom:-30%; right:-20%; animation-delay:-6s;}
+  .blob:nth-child(3){ background:#00ffaa; top:20%; right:-10%; animation-delay:-12s; width:40vmax; height:40vmax;}
+  .blob:nth-child(4){ background:#9933ff; bottom:0; left:10%; animation-delay:-9s; width:35vmax; height:35vmax;}
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(8vw,-6vh) scale(1.15); }
+    66%     { transform: translate(-6vw,8vh) scale(.9); }
+  }
+  #canvas-wrap { position: fixed; inset: 0; z-index: 1; }
+  canvas { display:block; width:100%!important; height:100%!important; touch-action:none; }
 
-// ══════════════════════════════════════════════
-// MARK: - SCENE ACTIONS
-// ══════════════════════════════════════════════
-enum SceneAction: String, CaseIterable, Identifiable {
-    case explode, vortex, shockwave, colorshift, pulse, gravity, shake, reset
-    var id: String { rawValue }
-    var title: String {
-        switch self {
-        case .explode:    return "💥 Explode"
-        case .vortex:     return "🌀 Vortex"
-        case .shockwave:  return "🌊 Shock"
-        case .colorshift: return "🎨 Color"
-        case .pulse:      return "💓 Pulse"
-        case .gravity:    return "🪐 Gravity"
-        case .shake:      return "📳 Shake"
-        case .reset:      return "🔄 Reset"
-        }
-    }
+  /* TOP BAR */
+  #topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+            display:flex; justify-content:space-between; align-items:center;
+            padding: 14px 18px; pointer-events:none; }
+  #title { color:#fff; font-weight:800; font-size:16px; letter-spacing:.5px;
+           text-shadow: 0 0 14px rgba(0,200,255,.8); }
+  #musicBtn { pointer-events:auto; width:44px; height:44px; border-radius:50%;
+              border:1px solid rgba(255,255,255,.25);
+              background: rgba(255,255,255,.08); backdrop-filter: blur(14px);
+              color:#fff; font-size:18px; cursor:pointer;
+              display:flex; align-items:center; justify-content:center;
+              transition: transform .15s, background .2s; }
+  #musicBtn:active { transform: scale(.92); }
+  #musicBtn.off   { opacity:.6; }
+
+  /* ACTION GRID */
+  #actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+             display:grid; grid-template-columns: repeat(2, 1fr);
+             gap: 10px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+             max-width: 520px; margin: 0 auto; }
+  .btn { position: relative; color:#fff; font-weight:700; font-size:14px;
+         padding: 14px 8px; border-radius:14px; border:1px solid rgba(255,255,255,.22);
+         background: linear-gradient(135deg, rgba(0,200,255,.30), rgba(180,0,255,.30));
+         backdrop-filter: blur(14px); cursor:pointer; overflow:hidden;
+         transition: transform .12s ease, box-shadow .25s; user-select:none; }
+  .btn:active { transform: scale(.95); box-shadow: 0 0 24px rgba(0,200,255,.6); }
+  .btn::after { content:''; position:absolute; inset:0;
+                background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), transparent 60%);
+                opacity:0; transition: opacity .25s; }
+  .btn:active::after { opacity:1; }
+
+  /* LOADING */
+  #loader { position: fixed; inset:0; z-index: 100; background:#000;
+            display:flex; align-items:center; justify-content:center;
+            color:#fff; font-weight:700; font-size:16px; letter-spacing:2px;
+            transition: opacity .6s ease; }
+  #loader.hide { opacity:0; pointer-events:none; }
+  #loader span { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+  @media (max-width: 480px) {
+    .btn { font-size: 13px; padding: 12px 6px; }
+    #title { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div class="blob"></div>
+  <div class="blob"></div>
+  <div class="blob"></div>
+  <div class="blob"></div>
+</div>
+
+<div id="canvas-wrap"></div>
+
+<div id="topbar">
+  <div id="title">✨ HIGH GFX DEMO</div>
+  <button id="musicBtn" title="Toggle Music">🔊</button>
+</div>
+
+<div id="actions">
+  <button class="btn" data-action="explode">💥 Explode</button>
+  <button class="btn" data-action="vortex">🌀 Vortex</button>
+  <button class="btn" data-action="shock">🌊 Shockwave</button>
+  <button class="btn" data-action="color">🎨 Color</button>
+  <button class="btn" data-action="pulse">💓 Pulse</button>
+  <button class="btn" data-action="gravity">🪐 Gravity</button>
+  <button class="btn" data-action="shake">📳 Shake</button>
+  <button class="btn" data-action="reset">🔄 Reset</button>
+</div>
+
+<div id="loader"><span>LOADING…</span></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+
+/* ══════════════════════════════════════════════
+   1. RENDERER
+   ══════════════════════════════════════════════ */
+const container = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+container.appendChild(renderer.domElement);
+
+/* ══════════════════════════════════════════════
+   2. SCENE + CAMERA
+   ══════════════════════════════════════════════ */
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 2.2, 7);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.enablePan = false;
+controls.minDistance = 4;
+controls.maxDistance = 12;
+controls.target.set(0, 0.2, 0);
+controls.autoRotate = false;
+
+/* ══════════════════════════════════════════════
+   3. ENVIRONMENT (for reflections)
+   ══════════════════════════════════════════════ */
+function makeEnvTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 512;
+  const g = c.getContext('2d');
+  const grad = g.createLinearGradient(0, 0, 1024, 512);
+  grad.addColorStop(0,   '#050520');
+  grad.addColorStop(0.4, '#0066ff');
+  grad.addColorStop(0.7, '#ff3399');
+  grad.addColorStop(1,   '#000000');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 1024, 512);
+  // hot spots
+  const spots = [[180,120,'#00ffff'],[600,180,'#ff00aa'],[850,380,'#ffaa00']];
+  for (const [x,y,col] of spots) {
+    const rg = g.createRadialGradient(x,y,0,x,y,180);
+    rg.addColorStop(0, col);
+    rg.addColorStop(1, 'transparent');
+    g.fillStyle = rg;
+    g.fillRect(x-180,y-180,360,360);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const envTex = makeEnvTexture();
+scene.environment = envTex;
+
+/* ══════════════════════════════════════════════
+   4. LIGHTS
+   ══════════════════════════════════════════════ */
+scene.add(new THREE.AmbientLight(0x404060, 0.8));
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+keyLight.position.set(5, 8, 5);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+scene.add(keyLight);
+
+const rimLight = new THREE.PointLight(0xff3388, 40, 20);
+rimLight.position.set(-4, 3, -4);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0x00aaff, 40, 20);
+fillLight.position.set(4, 2, 4);
+scene.add(fillLight);
+
+/* ══════════════════════════════════════════════
+   5. HERO TORUS KNOT (metallic)
+   ══════════════════════════════════════════════ */
+const heroGeo = new THREE.TorusKnotGeometry(1.3, 0.42, 300, 48, 2, 3);
+const heroMat = new THREE.MeshPhysicalMaterial({
+  color: 0x1188ee,
+  metalness: 1.0,
+  roughness: 0.10,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  emissive: 0x004488,
+  emissiveIntensity: 0.35,
+  envMapIntensity: 1.8
+});
+const hero = new THREE.Mesh(heroGeo, heroMat);
+hero.castShadow = true;
+scene.add(hero);
+
+/* ══════════════════════════════════════════════
+   6. ORBITING NEON SPHERES
+   ══════════════════════════════════════════════ */
+const spheres = [];
+const spherePivots = [];
+const sphereCount = 8;
+const sphereRadius = 3.0;
+
+for (let i = 0; i < sphereCount; i++) {
+  const hue = i / sphereCount;
+  const col = new THREE.Color().setHSL(hue, 0.9, 0.55);
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: col,
+    metalness: 0.7,
+    roughness: 0.2,
+    emissive: col,
+    emissiveIntensity: 0.9,
+    envMapIntensity: 1.4
+  });
+  const s = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 32), mat);
+  s.castShadow = true;
+
+  const pivot = new THREE.Object3D();
+  const angle = (i / sphereCount) * Math.PI * 2;
+  const y = (Math.random() - 0.5) * 2.5;
+  s.position.set(Math.cos(angle) * sphereRadius, y, Math.sin(angle) * sphereRadius);
+
+  pivot.add(s);
+  scene.add(pivot);
+  spheres.push(s);
+  spherePivots.push(pivot);
 }
 
-// ══════════════════════════════════════════════
-// MARK: - CONTROLLER
-// ══════════════════════════════════════════════
-final class SceneController: ObservableObject {
-    weak var view: SCNView?
-    var world: SCNNode?
-    var hero: SCNNode?
-    var spheres: [SCNNode] = []
-    var cameraRig: SCNNode?
-    var heroMaterial: SCNMaterial?
-    var originalPositions: [SCNVector3] = []
+/* ══════════════════════════════════════════════
+   7. SPARK PARTICLES
+   ══════════════════════════════════════════════ */
+const PARTICLE_COUNT = 800;
+const particleGeo = new THREE.BufferGeometry();
+const positions = new Float32Array(PARTICLE_COUNT * 3);
+const velocities = new Float32Array(PARTICLE_COUNT * 3);
+const colors    = new Float32Array(PARTICLE_COUNT * 3);
 
-    func trigger(_ a: SceneAction) {
-        guard let hero = hero else { return }
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  // start inside torus radius
+  const a = Math.random() * Math.PI * 2;
+  const r = 1.6 + Math.random() * 0.4;
+  positions[i*3]   = Math.cos(a) * r;
+  positions[i*3+1] = (Math.random() - 0.5) * 1.0;
+  positions[i*3+2] = Math.sin(a) * r;
 
-        switch a {
-        case .explode:
-            hero.removeAllActions()
-            hero.runAction(.sequence([
-                .scale(to: 1.8, duration: 0.12),
-                .scale(to: 0.5, duration: 0.10),
-                .scale(to: 1.0, duration: 0.25)
-            ]))
-            for s in spheres {
-                let pos = s.presentation.position
-                let dx = pos.x == 0 ? Float.random(in: 3...5) : pos.x * 3
-                let dy = pos.y == 0 ? Float.random(in: 3...5) : pos.y * 3
-                let dz = pos.z == 0 ? Float.random(in: 3...5) : pos.z * 3
-                let out = SCNAction.move(by: SCNVector3(dx, dy, dz), duration: 0.35)
-                out.timingMode = .easeOut
-                let back = SCNAction.move(to: pos, duration: 0.7)
-                back.timingMode = .easeInEaseOut
-                s.runAction(.sequence([out, back]))
-            }
-            bounceCamera()
+  velocities[i*3]   = (Math.random() - 0.5) * 0.8;
+  velocities[i*3+1] = Math.random() * 1.2 + 0.3;
+  velocities[i*3+2] = (Math.random() - 0.5) * 0.8;
 
-        case .vortex:
-            for (i, s) in spheres.enumerated() {
-                s.removeAllActions()
-                let spin = SCNAction.repeatForever(.rotateBy(x: 0, y: .pi * 4, z: 0, duration: 1.5))
-                let orbit = SCNAction.repeatForever(.rotateBy(x: 0, y: .pi * 2, z: 0, duration: 2.0 + Double(i) * 0.2))
-                s.parent?.runAction(orbit, forKey: "orbit")
-                s.runAction(spin, forKey: "spin")
-            }
-
-        case .shockwave:
-            spawnShockwave(at: hero.presentation.position)
-            bounceCamera()
-
-        case .colorshift:
-            let hue = CGFloat.random(in: 0...1)
-            let col = UIColor(hue: hue, saturation: 0.9, brightness: 1, alpha: 1)
-            heroMaterial?.diffuse.contents   = col
-            heroMaterial?.emission.contents  = col
-            for s in spheres {
-                let c = UIColor(hue: CGFloat.random(in: 0...1), saturation: 0.9, brightness: 1, alpha: 1)
-                s.geometry?.firstMaterial?.diffuse.contents  = c
-                s.geometry?.firstMaterial?.emission.contents = c
-            }
-
-        case .pulse:
-            hero.removeAllActions()
-            let p = SCNAction.sequence([
-                .scale(to: 1.35, duration: 0.20),
-                .scale(to: 1.00, duration: 0.30)
-            ])
-            hero.runAction(.repeat(p, count: 3))
-
-        case .gravity:
-            for s in spheres {
-                let origin = s.presentation.position
-                let inward = SCNAction.move(to: SCNVector3(0, 0, 0), duration: 0.5)
-                inward.timingMode = .easeIn
-                let back   = SCNAction.move(to: origin, duration: 0.8)
-                back.timingMode = .easeOut
-                s.runAction(.sequence([inward, back]))
-            }
-
-        case .shake:
-            if let cam = cameraRig {
-                let shake = SCNAction.sequence([
-                    .moveBy(x: 0.15, y: 0.15, z: 0, duration: 0.05),
-                    .moveBy(x: -0.3, y: -0.3, z: 0, duration: 0.05),
-                    .moveBy(x: 0.3, y: 0.3, z: 0, duration: 0.05),
-                    .moveBy(x: -0.15, y: -0.15, z: 0, duration: 0.05)
-                ])
-                cam.runAction(.repeat(shake, count: 3))
-            }
-
-        case .reset:
-            hero.removeAllActions()
-            hero.scale = SCNVector3(1, 1, 1)
-            hero.eulerAngles = SCNVector3Zero
-            for (i, s) in spheres.enumerated() where i < originalPositions.count {
-                s.removeAllActions()
-                s.position = originalPositions[i]
-            }
-            hero.runAction(.repeatForever(.rotateBy(x: 0, y: .pi * 2, z: 0, duration: 10)))
-            restartOrbits()
-        }
-    }
-
-    private func restartOrbits() {
-        for (i, s) in spheres.enumerated() {
-            s.parent?.removeAllActions()
-            let orbit = SCNAction.repeatForever(
-                .rotateBy(x: 0, y: .pi * 2, z: 0, duration: 8 + Double(i))
-            )
-            s.parent?.runAction(orbit)
-        }
-    }
-
-    private func bounceCamera() {
-        guard let cam = cameraRig else { return }
-        let fwd  = SCNAction.moveBy(x: 0, y: 0, z: -0.8, duration: 0.10)
-        let back = SCNAction.moveBy(x: 0, y: 0, z:  0.8, duration: 0.30)
-        cam.runAction(.sequence([fwd, back]))
-    }
-
-    private func spawnShockwave(at pos: SCNVector3) {
-        guard let world = world else { return }
-        let ring = SCNTorus(ringRadius: 0.15, pipeRadius: 0.06)
-        let mat = SCNMaterial()
-        mat.lightingModel = .constant
-        mat.diffuse.contents  = UIColor.white
-        mat.emission.contents = UIColor.cyan
-        mat.emission.intensity = 3.0
-        ring.materials = [mat]
-
-        let node = SCNNode(geometry: ring)
-        node.position = pos
-        node.eulerAngles.x = .pi / 2
-        world.addChildNode(node)
-
-        let grow = SCNAction.scale(to: 18, duration: 1.2)
-        grow.timingMode = .easeOut
-        let fade = SCNAction.fadeOut(duration: 1.2)
-        node.runAction(.sequence([.group([grow, fade]), .removeFromParentNode()]))
-    }
+  const c = new THREE.Color().setHSL(0.06 + Math.random()*0.08, 1, 0.6);
+  colors[i*3]   = c.r;
+  colors[i*3+1] = c.g;
+  colors[i*3+2] = c.b;
 }
 
-// ══════════════════════════════════════════════
-// MARK: - SCENEKIT VIEW
-// ══════════════════════════════════════════════
-struct SceneKitView: UIViewRepresentable {
-    @ObservedObject var controller: SceneController
+particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    func makeUIView(context: Context) -> SCNView {
-        let v = SCNView()
-        v.preferredFramesPerSecond = 120          // ProMotion max
-        v.antialiasingMode = .multisampling4X
-        v.isPlaying = true
-        v.rendersContinuously = true
-        v.autoenablesDefaultLighting = false
-        v.backgroundColor = .clear
-        v.scene = SceneBuilder.build(controller: controller)
-        controller.view = v
+const particleMat = new THREE.PointsMaterial({
+  size: 0.06,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.9,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+  sizeAttenuation: true
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
 
-        let pan = UIPanGestureRecognizer(target: context.coordinator,
-                                         action: #selector(Coordinator.handlePan(_:)))
-        v.addGestureRecognizer(pan)
-        return v
-    }
+/* ══════════════════════════════════════════════
+   8. REFLECTIVE FLOOR
+   ══════════════════════════════════════════════ */
+const mirrorGeo = new THREE.PlaneGeometry(30, 30);
+const mirror = new Reflector(mirrorGeo, {
+  clipBias: 0.003,
+  textureWidth: window.innerWidth * Math.min(devicePixelRatio, 2),
+  textureHeight: window.innerHeight * Math.min(devicePixelRatio, 2),
+  color: 0x111122
+});
+mirror.rotation.x = -Math.PI / 2;
+mirror.position.y = -2.0;
+scene.add(mirror);
 
-    func updateUIView(_ uiView: SCNView, context: Context) {}
-    func makeCoordinator() -> Coordinator { Coordinator() }
+// subtle grid overlay on floor
+const gridGeo = new THREE.PlaneGeometry(30, 30);
+const gridMat = new THREE.MeshBasicMaterial({
+  color: 0x224466, transparent: true, opacity: 0.15
+});
+const grid = new THREE.Mesh(gridGeo, gridMat);
+grid.rotation.x = -Math.PI / 2;
+grid.position.y = -1.999;
+scene.add(grid);
 
-    final class Coordinator: NSObject {
-        @objc func handlePan(_ g: UIPanGestureRecognizer) {
-            guard let v = g.view as? SCNView,
-                  let world = v.scene?.rootNode.childNode(withName: "world", recursively: false)
-            else { return }
-            let t = g.translation(in: v)
-            world.eulerAngles.y = Float(t.x) * 0.008
-            world.eulerAngles.x = Float(t.y) * 0.004
-        }
-    }
+/* ══════════════════════════════════════════════
+   9. POST-PROCESSING (HDR Bloom)
+   ══════════════════════════════════════════════ */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.1,   // strength
+  0.5,   // radius
+  0.55   // threshold
+);
+composer.addPass(bloom);
+
+/* ══════════════════════════════════════════════
+   10. ANIMATION STATE
+   ══════════════════════════════════════════════ */
+const clock = new THREE.Clock();
+const state = {
+  explodeT: 0, vortexT: 0, pulseT: 0, gravityT: 0, shakeT: 0,
+  vortexActive: false,
+  sphereOriginals: spheres.map(s => s.position.clone()),
+};
+
+/* ══════════════════════════════════════════════
+   11. ACTIONS
+   ══════════════════════════════════════════════ */
+function explode() {
+  state.explodeT = 1.0;
+}
+function vortex() {
+  state.vortexActive = !state.vortexActive;
+  state.vortexT = 3.0;
+}
+function shockwave() {
+  const ringGeo = new THREE.TorusGeometry(0.15, 0.06, 16, 64);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.position.copy(hero.position);
+  ring.rotation.x = Math.PI / 2;
+  scene.add(ring);
+
+  let t = 0;
+  const grow = () => {
+    t += 0.02;
+    if (t > 1) { scene.remove(ring); return; }
+    const s = 1 + t * 14;
+    ring.scale.set(s, s, s);
+    ringMat.opacity = 1 - t;
+    requestAnimationFrame(grow);
+  };
+  grow();
+}
+function colorShift() {
+  const hue = Math.random();
+  heroMat.color.setHSL(hue, 0.9, 0.5);
+  heroMat.emissive.setHSL(hue, 0.9, 0.3);
+  for (const s of spheres) {
+    const c = new THREE.Color().setHSL(Math.random(), 0.9, 0.55);
+    s.material.color.copy(c);
+    s.material.emissive.copy(c);
+  }
+}
+function pulse() {
+  state.pulseT = 1.0;
+}
+function gravity() {
+  state.gravityT = 1.0;
+}
+function shake() {
+  state.shakeT = 0.6;
+}
+function reset() {
+  state.explodeT = state.vortexT = state.pulseT = state.gravityT = state.shakeT = 0;
+  state.vortexActive = false;
+  hero.scale.set(1, 1, 1);
+  hero.rotation.set(0, 0, 0);
+  spheres.forEach((s, i) => {
+    s.position.copy(state.sphereOriginals[i]);
+  });
 }
 
-// ══════════════════════════════════════════════
-// MARK: - SCENE BUILDER
-// ══════════════════════════════════════════════
-enum SceneBuilder {
-    static func build(controller: SceneController) -> SCNScene {
-        let scene = SCNScene()
+const actions = {
+  explode, vortex, shock: shockwave, color: colorShift,
+  pulse, gravity, shake, reset
+};
 
-        // WORLD (rotatable)
-        let world = SCNNode()
-        world.name = "world"
-        scene.rootNode.addChildNode(world)
-        controller.world = world
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const a = btn.dataset.action;
+    if (actions[a]) actions[a]();
+    if (navigator.vibrate) navigator.vibrate(20);
+  });
+});
 
-        // ── CAMERA RIG ────────────────────────────
-        let rig = SCNNode()
-        let cam = SCNCamera()
-        cam.zFar = 200
-        cam.wantsHDR = true
-        cam.bloomIntensity = 1.8
-        cam.bloomThreshold = 0.55
-        cam.bloomBlurRadius = 22
-        cam.wantsExposureAdaptation = true
-        cam.motionBlurIntensity = 0.5
-        let camNode = SCNNode()
-        camNode.camera = cam
-        camNode.position = SCNVector3(0, 2.2, 7)
-        camNode.look(at: SCNVector3(0, 0, 0))
-        rig.addChildNode(camNode)
-        world.addChildNode(rig)
-        controller.cameraRig = rig
+/* ══════════════════════════════════════════════
+   12. BACKGROUND MUSIC (Web Audio ambient pad)
+   ══════════════════════════════════════════════ */
+let audioCtx = null;
+let masterGain = null;
+let musicOn = false;
+const musicBtn = document.getElementById('musicBtn');
 
-        // ── ENVIRONMENT (reflections) ─────────────
-        scene.lightingEnvironment.contents  = gradientEnvironment()
-        scene.lightingEnvironment.intensity = 2.0
+function startMusic() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.08;
+    masterGain.connect(audioCtx.destination);
 
-        // ── HERO TORUS ────────────────────────────
-        let torus = SCNTorus(ringRadius: 1.6, pipeRadius: 0.48)
-        torus.ringSegmentCount = 128
-        torus.pipeSegmentCount = 64
+    // Open fifth pad: E2 A2 E3 A3 (165, 220, 330, 440 Hz)
+    [165, 220, 330, 440].forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
 
-        let mat = SCNMaterial()
-        mat.lightingModel = .physicallyBased
-        mat.diffuse.contents  = UIColor(red: 0.05, green: 0.55, blue: 0.85, alpha: 1)
-        mat.metalness.contents = 1.0
-        mat.roughness.contents = 0.10
-        mat.emission.contents  = UIColor(red: 0.0, green: 0.4, blue: 0.7, alpha: 1)
-        mat.emission.intensity = 0.25
-        mat.fresnelExponent = 2.0
-        torus.materials = [mat]
+      osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+      osc.frequency.value = freq;
 
-        let hero = SCNNode(geometry: torus)
-        hero.runAction(.repeatForever(.rotateBy(x: 0, y: .pi * 2, z: 0, duration: 10)))
-        let float = SCNAction.sequence([
-            .moveBy(x: 0, y:  0.3, z: 0, duration: 2.0),
-            .moveBy(x: 0, y: -0.3, z: 0, duration: 2.0)
-        ])
-        hero.runAction(.repeatForever(float))
-        world.addChildNode(hero)
-        controller.hero = hero
-        controller.heroMaterial = mat
+      lfo.frequency.value = 0.25 + i * 0.07;
+      lfoGain.gain.value = 1.5;
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      lfo.start();
 
-        // ── ORBITING NEON SPHERES ─────────────────
-        for i in 0..<8 {
-            let s = SCNSphere(radius: 0.22)
-            s.segmentCount = 96
+      // slow tremolo
+      const trem = audioCtx.createOscillator();
+      const tremGain = audioCtx.createGain();
+      trem.frequency.value = 0.15 + i * 0.04;
+      tremGain.gain.value = 0.4;
+      trem.connect(tremGain);
+      tremGain.connect(oscGain.gain);
 
-            let m = SCNMaterial()
-            m.lightingModel = .physicallyBased
-            let c = UIColor(hue: CGFloat(i) / 8.0, saturation: 0.85, brightness: 1.0, alpha: 1)
-            m.diffuse.contents   = c
-            m.metalness.contents = 0.7
-            m.roughness.contents = 0.25
-            m.emission.contents  = c
-            m.emission.intensity = 0.9
-            s.materials = [m]
+      oscGain.gain.value = 0.5;
+      osc.connect(oscGain);
+      oscGain.connect(masterGain);
 
-            let node = SCNNode(geometry: s)
-            let angle = Float(i) / 8.0 * .pi * 2
-            let r: Float = 3.0
-            node.position = SCNVector3(cos(angle) * r,
-                                       Float.random(in: -1.0...1.0),
-                                       sin(angle) * r)
-            controller.spheres.append(node)
-            controller.originalPositions.append(node.position)
-
-            let orbitNode = SCNNode()
-            orbitNode.addChildNode(node)
-            let orbit = SCNAction.repeatForever(
-                .rotateBy(x: 0, y: .pi * 2, z: 0, duration: 8.0 + Double(i))
-            )
-            orbitNode.runAction(orbit)
-            world.addChildNode(orbitNode)
-        }
-
-        // ── REFLECTIVE FLOOR ──────────────────────
-        let floor = SCNFloor()
-        floor.reflectivity = 0.65
-        floor.reflectionFalloffEnd = 8
-        let floorMat = SCNMaterial()
-        floorMat.lightingModel = .physicallyBased
-        floorMat.diffuse.contents   = UIColor(white: 0.02, alpha: 1)
-        floorMat.metalness.contents = 0.9
-        floorMat.roughness.contents = 0.35
-        floor.materials = [floorMat]
-        let floorNode = SCNNode(geometry: floor)
-        floorNode.position = SCNVector3(0, -2.0, 0)
-        scene.rootNode.addChildNode(floorNode)
-
-        // ── LIGHTS ────────────────────────────────
-        let amb = SCNLight()
-        amb.type = .ambient
-        amb.color = UIColor(white: 0.15, alpha: 1)
-        let ambN = SCNNode(); ambN.light = amb
-        scene.rootNode.addChildNode(ambN)
-
-        let key = SCNLight()
-        key.type = .directional
-        key.color = .white
-        key.intensity = 1500
-        key.castsShadow = true
-        key.shadowMode = .deferred
-        key.shadowSampleCount = 16
-        key.shadowRadius = 6
-        key.shadowMapSize = CGSize(width: 2048, height: 2048)
-        let keyN = SCNNode(); keyN.light = key
-        keyN.eulerAngles = SCNVector3(-.pi / 3, .pi / 6, 0)
-        scene.rootNode.addChildNode(keyN)
-
-        let rim = SCNLight()
-        rim.type = .omni
-        rim.color = UIColor(red: 1.0, green: 0.3, blue: 0.6, alpha: 1)
-        rim.intensity = 1800
-        let rimN = SCNNode(); rimN.light = rim
-        rimN.position = SCNVector3(-4, 3, -4)
-        scene.rootNode.addChildNode(rimN)
-
-        let fill = SCNLight()
-        fill.type = .omni
-        fill.color = UIColor(red: 0.2, green: 0.6, blue: 1.0, alpha: 1)
-        fill.intensity = 1500
-        let fillN = SCNNode(); fillN.light = fill
-        fillN.position = SCNVector3(4, 2, 4)
-        scene.rootNode.addChildNode(fillN)
-
-        // ── SPARK PARTICLES ───────────────────────
-        let ps = SCNParticleSystem()
-        ps.birthRate = 350
-        ps.particleLifeSpan = 2.0
-        ps.particleSize = 0.035
-        ps.particleColor = .orange
-        ps.particleColorVariation = SCNVector4(0.1, 0.5, 0.5, 0.3)
-        ps.emitterShape = SCNSphere(radius: 1.6)
-        ps.birthDirection = .random
-        ps.particleVelocity = 1.2
-        ps.particleVelocityVariation = 0.8
-        ps.blendMode = .additive
-        let psNode = SCNNode()
-        psNode.addParticleSystem(ps)
-        world.addChildNode(psNode)
-
-        return scene
-    }
-
-    static func gradientEnvironment() -> UIImage {
-        let size = CGSize(width: 512, height: 512)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { ctx in
-            let colors: CFArray = [
-                UIColor(red: 0.02, green: 0.02, blue: 0.10, alpha: 1).cgColor,
-                UIColor(red: 0.00, green: 0.40, blue: 0.90, alpha: 1).cgColor,
-                UIColor(red: 0.90, green: 0.20, blue: 0.60, alpha: 1).cgColor,
-                UIColor.black.cgColor
-            ] as CFArray
-            let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                               colors: colors, locations: [0, 0.4, 0.7, 1])!
-            ctx.cgContext.drawLinearGradient(g,
-                start: .zero,
-                end: CGPoint(x: size.width, y: size.height),
-                options: [])
-        }
-    }
+      osc.start();
+      trem.start();
+    });
+  }
+  audioCtx.resume();
+  musicOn = true;
+  musicBtn.textContent = '🔊';
+  musicBtn.classList.remove('off');
 }
 
-// ══════════════════════════════════════════════
-// MARK: - ANIMATED BACKGROUND
-// ══════════════════════════════════════════════
-struct AnimatedBackground: View {
-    var body: some View {
-        TimelineView(.animation) { ctx in
-            let t = ctx.date.timeIntervalSince1970
-            Canvas { context, size in
-                context.fill(Path(CGRect(origin: .zero, size: size)),
-                             with: .color(Color(red: 0.01, green: 0.01, blue: 0.05)))
-
-                for i in 0..<6 {
-                    let phase = t * 0.35 + Double(i) * 1.1
-                    let x = size.width  * (0.5 + 0.42 * cos(phase * 0.9))
-                    let y = size.height * (0.5 + 0.42 * sin(phase * 0.7))
-                    let r = 260.0 + 120.0 * sin(phase * 1.4 + Double(i))
-                    let hue = (t * 0.04 + Double(i) * 0.15).truncatingRemainder(dividingBy: 1.0)
-                    let col = Color(hue: hue, saturation: 0.75, brightness: 0.7)
-                    let rect = CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)
-                    context.fill(
-                        Path(ellipseIn: rect),
-                        with: .radialGradient(
-                            Gradient(colors: [col.opacity(0.35), .clear]),
-                            center: CGPoint(x: x, y: y),
-                            startRadius: 0,
-                            endRadius: r
-                        )
-                    )
-                }
-            }
-            .background(Color.black)
-            .blur(radius: 35)
-        }
-        .ignoresSafeArea()
-    }
+function stopMusic() {
+  if (audioCtx) audioCtx.suspend();
+  musicOn = false;
+  musicBtn.textContent = '🔇';
+  musicBtn.classList.add('off');
 }
 
-// ══════════════════════════════════════════════
-// MARK: - BACKGROUND MUSIC (procedural ambient pad)
-// ══════════════════════════════════════════════
-final class MusicPlayer: ObservableObject {
-    @Published var isOn = true
-    private var engine = AVAudioEngine()
-    private var nodes: [AVAudioPlayerNode] = []
-    private var started = false
+musicBtn.addEventListener('click', () => {
+  if (musicOn) stopMusic(); else startMusic();
+});
 
-    func start() {
-        guard !started else { return }
-        do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
-            try session.setActive(true)
+// Auto-start on first user interaction (mobile requires gesture)
+document.body.addEventListener('pointerdown', () => {
+  if (!audioCtx && !musicOn) startMusic();
+}, { once: true });
 
-            // Open fifth pad: E2, A2, E3, A3 (all loop perfectly)
-            let freqs: [Double] = [165, 220, 330, 440]
-            let fmt = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 2)!
+/* ══════════════════════════════════════════════
+   13. RENDER LOOP
+   ══════════════════════════════════════════════ */
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const t  = clock.getElapsedTime();
 
-            for f in freqs {
-                let node = AVAudioPlayerNode()
-                engine.attach(node)
-                engine.connect(node, to: engine.mainMixerNode, format: fmt)
-                node.scheduleBuffer(loopBuffer(freq: f, format: fmt),
-                                    at: nil, options: .loops, completionHandler: nil)
-                node.play()
-                nodes.append(node)
-            }
-            engine.mainMixerNode.outputVolume = 0.10
-            try engine.start()
-            started = true
-            isOn = true
-        } catch {
-            print("Audio error: \(error)")
-        }
+  // Hero base rotation + float
+  hero.rotation.y += dt * 0.6;
+  hero.rotation.x = Math.sin(t * 0.5) * 0.15;
+  hero.position.y = Math.sin(t * 0.8) * 0.3;
+
+  // Pulse
+  if (state.pulseT > 0) {
+    state.pulseT -= dt * 3;
+    const s = 1 + Math.max(0, state.pulseT) * 0.4 * Math.abs(Math.sin(t * 20));
+    hero.scale.setScalar(s);
+  } else {
+    hero.scale.lerp(new THREE.Vector3(1,1,1), dt * 6);
+  }
+
+  // Explode
+  if (state.explodeT > 0) {
+    state.explodeT -= dt * 2;
+    spheres.forEach((s, i) => {
+      const dir = state.sphereOriginals[i].clone().normalize();
+      const k = Math.max(0, state.explodeT);
+      s.position.copy(state.sphereOriginals[i]).addScaledVector(dir, k * 3);
+    });
+    hero.scale.setScalar(1 + state.explodeT * 0.6);
+  }
+
+  // Vortex
+  if (state.vortexActive) {
+    spheres.forEach((s, i) => {
+      const p = spherePivots[i];
+      p.rotation.y += dt * (4 + i * 0.3);
+      p.rotation.x += dt * 2;
+    });
+  } else {
+    spherePivots.forEach((p, i) => {
+      p.rotation.y += dt * (0.3 + i * 0.05);
+    });
+  }
+
+  // Gravity
+  if (state.gravityT > 0) {
+    state.gravityT -= dt * 1.5;
+    const k = Math.max(0, state.gravityT);
+    spheres.forEach((s, i) => {
+      const target = new THREE.Vector3(0, 0, 0);
+      const orig = state.sphereOriginals[i];
+      s.position.lerpVectors(orig, target, k);
+    });
+  }
+
+  // Shake camera
+  if (state.shakeT > 0) {
+    state.shakeT -= dt;
+    const amp = state.shakeT * 0.4;
+    camera.position.x = (Math.random() - 0.5) * amp;
+    camera.position.y = 2.2 + (Math.random() - 0.5) * amp;
+  }
+
+  // Orbit controls
+  controls.update();
+
+  // Particles
+  const posArr = particleGeo.attributes.position.array;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    posArr[i*3]   += velocities[i*3]   * dt;
+    posArr[i*3+1] += velocities[i*3+1] * dt;
+    posArr[i*3+2] += velocities[i*3+2] * dt;
+
+    // recycle if too high or far
+    const dx = posArr[i*3], dy = posArr[i*3+1], dz = posArr[i*3+2];
+    if (dy > 4 || dx*dx + dz*dz > 25) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 1.6 + Math.random() * 0.4;
+      posArr[i*3]   = Math.cos(a) * r;
+      posArr[i*3+1] = -0.5;
+      posArr[i*3+2] = Math.sin(a) * r;
     }
+  }
+  particleGeo.attributes.position.needsUpdate = true;
+  particles.rotation.y += dt * 0.1;
 
-    func stop() {
-        nodes.forEach { $0.stop() }
-        engine.stop()
-        started = false
-        isOn = false
-    }
-
-    func toggle() { isOn ? stop() : start() }
-
-    private func loopBuffer(freq: Double, format: AVAudioFormat) -> AVAudioPCMBuffer {
-        let sr = format.sampleRate           // 44100
-        let duration = 4.0                   // 4 s
-        let frames = AVAudioFrameCount(sr * duration)
-        let buf = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames)!
-        buf.frameLength = frames
-
-        let ch = Int(format.channelCount)
-        let data = buf.floatChannelData!
-        let amp: Float = 0.15
-
-        for i in 0..<Int(frames) {
-            let t = Double(i) / sr
-            // slow vibrato + soft amplitude pulse
-            let vibrato = 0.35 * sin(2 * .pi * 0.25 * t)
-            let env = 0.8 + 0.2 * sin(2 * .pi * 0.15 * t)
-            let s = Float(sin(2 * .pi * freq * t + vibrato) * env) * amp
-            for c in 0..<ch { data[c][i] = s }
-        }
-        return buf
-    }
+  composer.render();
 }
 
-// ══════════════════════════════════════════════
-// MARK: - MAIN VIEW
-// ══════════════════════════════════════════════
-struct ContentView: View {
-    @StateObject private var controller = SceneController()
-    @StateObject private var music      = MusicPlayer()
+/* ══════════════════════════════════════════════
+   14. RESIZE
+   ══════════════════════════════════════════════ */
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+  bloom.setSize(w, h);
+});
 
-    var body: some View {
-        ZStack {
-            AnimatedBackground()
+/* ══════════════════════════════════════════════
+   15. START
+   ══════════════════════════════════════════════ */
+animate();
 
-            SceneKitView(controller: controller)
-                .ignoresSafeArea()
-
-            VStack {
-                // TOP BAR
-                HStack {
-                    Text("✨ High Graphics Demo")
-                        .font(.headline.weight(.heavy))
-                        .foregroundStyle(.white)
-                    Spacer()
-                    Button {
-                        music.toggle()
-                    } label: {
-                        Image(systemName: music.isOn ? "speaker.wave.2.fill" : "speaker.slash.fill")
-                            .font(.title3)
-                            .foregroundStyle(.white)
-                            .padding(10)
-                            .background(.ultraThinMaterial, in: Circle())
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                Spacer()
-
-                // ACTION GRID
-                LazyVGrid(columns: [GridItem(.flexible(
+// hide loader after first frame
+setTimeout(() => document.getElementById('loader').classList.add('hide'), 400);
+</script>
+</body>
+    </html>
